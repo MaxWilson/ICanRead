@@ -17,13 +17,19 @@
       font-style: italic
     .choices
       display: grid
-      grid-template-columns: 100px 100px
+      grid-template-columns: 120px 100px
       .guessWord
         user-select: None
         font-size: 1.2rem
+        margin-bottom: 10px
+      .guessLetter
+        margin-right: 1em
       .guessLetter:hover
         color: red
         font-weight: bold
+      button
+        margin-left: 20px
+        margin-bottom: 10px
   .help
     font-style: italic
     grid-area: footer

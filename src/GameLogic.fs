@@ -36,7 +36,7 @@ let init _ =
 
 let update game word =
     if check game.problem word then
-        { game with score = game.score + 100; reviewList = game.reviewList |> List.filter ((<>) word); problem = newProblem game; feedback = $"Correct! '{word}' is the answer!" }
+        { game with score = game.score + 100; reviewList = game.reviewList |> List.filter ((<>) game.problem.answer); problem = newProblem game; feedback = $"Correct! '{word}' is the answer!" }
     else
         let answer = game.problem.answer
         { game with score = game.score - 100; reviewList = answer::game.reviewList |> List.distinct |> List.sort; problem = newProblem game; feedback = $"No, the answer was '{answer}'." }
