@@ -58,19 +58,17 @@ let view model dispatch =
 
             class' "choices" Html.section [
                 for word in model.game.problem.words do
-                    class' "choice" Html.section [
-                        class' "guessWord" Html.div [
-                            for letter in word do
-                                Html.span [
-                                    prop.className "guessLetter"
-                                    prop.text (letter.ToString())
-                                    prop.onClick (fun _ -> dispatch (HelpLetter (letter.ToString())))
-                                    ]
-                            ]
-                        Html.button [
-                            prop.text word
-                            prop.onClick (fun _ -> dispatch (Pick word))
-                            ]
+                    class' "guessWord" Html.div [
+                        for letter in word do
+                            Html.span [
+                                prop.className "guessLetter"
+                                prop.text (letter.ToString())
+                                prop.onClick (fun _ -> dispatch (HelpLetter (letter.ToString())))
+                                ]
+                        ]
+                    Html.button [
+                        prop.text word
+                        prop.onClick (fun _ -> dispatch (Pick word))
                         ]
                 ]
             Html.div model.game.feedback

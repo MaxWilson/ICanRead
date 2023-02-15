@@ -16,15 +16,14 @@
       font-size: 1.8rem
       font-style: italic
     .choices
-      display: flex
-      flex-direction: row
-      .choice
-        .guessWord
-          user-select: None
-          font-size: 1.2rem
-        .guessLetter:hover
-          color: red
-          font-weight: bold
+      display: grid
+      grid-template-columns: 100px 100px
+      .guessWord
+        user-select: None
+        font-size: 1.2rem
+      .guessLetter:hover
+        color: red
+        font-weight: bold
   .help
     font-style: italic
     grid-area: footer
