@@ -10,6 +10,7 @@
     <None Include="styles.sass" />
     <None Include="Scripts\Scratch1.fsx" />
     <Compile Include="Common.fs" />
+    <Compile Include="GameLogic.fs" />
     <Compile Include="WebSync.fs" />
     <None Include="Binding.Ably.fs" />
     <Compile Include="Components.fs" />
