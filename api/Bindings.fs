@@ -10,11 +10,11 @@ exception ThothJsonInputException of msg: string
 
 type ThothCosmosDbSerializerFactory() =
     interface ICosmosDBSerializerFactory with
-        member this.CreateSerializer(): CosmosSerializer = 
+        member this.CreateSerializer(): CosmosSerializer =
             {
                 new CosmosSerializer() with
                     override this.ToStream(input) =
-                        Encode.Auto.toString(input) |> UTF8.GetBytes 
+                        Encode.Auto.toString(input) |> UTF8.GetBytes
                         |> fun x -> new MemoryStream(x) :> Stream
                     override this.FromStream<'t>(input) =
                         use txt = new StreamReader(input)
@@ -22,4 +22,3 @@ type ThothCosmosDbSerializerFactory() =
                         | Ok v -> v
                         | Error err -> err |> ThothJsonInputException |> raise
                 }
-    

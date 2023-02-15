@@ -8,10 +8,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="styles.sass" />
+    <None Include="Scripts\Scratch1.fsx" />
     <Compile Include="Common.fs" />
-    <Compile Include="Lib\Autopicker.fs" />
-    <Compile Include="DungeonFantasy\Chargen.fs" />
-    <None Include="Scripts\Autopicker.fsx" />
     <Compile Include="WebSync.fs" />
     <None Include="Binding.Ably.fs" />
     <Compile Include="Components.fs" />
