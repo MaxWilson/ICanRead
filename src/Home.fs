@@ -11,6 +11,7 @@ open Elmish
 open Elmish.Navigation
 open Thoth.Json
 open GameLogic
+open Fable.Core
 
 importSideEffects "./styles.sass"
 
@@ -19,27 +20,44 @@ type 't Deferred = NotStarted | InProgress | Ready of 't
 type Model = {
     userName: string
     game: Game
-    help: string option
     }
 
 type Msg =
     | Pick of word: string
     | HelpLetter of letter: string
 
+[<Emit("""rate => msg => {
+    var msg = new SpeechSynthesisUtterance(msg);
+    msg.pitch = 28
+    msg.rate = rate;
+    window.speechSynthesis.speak(msg)
+}""")>]
+let private speak : double -> string -> unit = jsNative
+
 let update msg model =
     match msg with
     | Pick word ->
-        { model with game = GameLogic.update model.game word; help = None }
+        let game = GameLogic.update model.game word
+        match game.problem.answer with
+        | "" -> ()
+        | v ->
+            speak 1. (game.feedback + $" Now, find '{v}'.")
+        { model with game = game }
     | HelpLetter letter ->
-        { model with help = Some letter }
+        speak 0.15 letter
+        model
 
 type NavCmd = Fresh
 
 let init _ =
+    let game = GameLogic.init()
+    match game.problem.answer with
+    | "" -> ()
+    | v ->
+        speak 1. ("Which word says " + v)
     {
         userName = "<UserName>"
-        game = GameLogic.init()
-        help = None
+        game = game
         }
 
 let class' (className: string) ctor (elements: _ seq) = ctor [prop.className className; prop.children elements]
@@ -54,8 +72,6 @@ let view model dispatch =
         classTxt' "score" Html.div $"Score: {model.game.score}"
 
         class' "guessing" Html.div [
-            classTxt' "speakingVoice" Html.div $"<<A voice says '{model.game.problem.answer}'>>"
-
             class' "choices" Html.section [
                 for word in model.game.problem.words do
                     class' "guessWord" Html.div [
@@ -71,16 +87,13 @@ let view model dispatch =
                         prop.onClick (fun _ -> dispatch (Pick word))
                         ]
                 ]
-            Html.div model.game.feedback
+
+            if model.game.feedback <> "" then
+                Html.div model.game.feedback
 
             if model.game.reviewList.Length > 0 then
                 Html.div $"""Review list: {model.game.reviewList |> String.join ", " }"""
             ]
-
-        match model.help with
-        | None -> ()
-        | Some letter ->
-            classTxt' "help" Html.div $"The letter '{letter}' sounds like <<A voice says '{letter}'>>"
         ]
 
 module Nav =
