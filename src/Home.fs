@@ -41,7 +41,7 @@ let update msg model =
         match game.problem.answer with
         | "" -> ()
         | v ->
-            speak 1. (game.feedback + $" Now, find '{v}'.")
+            speak 1. (game.feedback + $" Now... which word says '{v}'.")
         { model with game = game }
     | HelpLetter letter ->
         speak 0.15 letter

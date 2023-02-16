@@ -21,7 +21,8 @@ let newProblem(game:Game) =
             else
                 recur (((Array.chooseRandom words)::accum) |> List.distinct)
         let words = recur seedWords |> List.toArray |> Array.randomize
-        { words = words; answer = Array.chooseRandom words }
+        // don't ask the same question twice in a row
+        { words = words; answer = Array.chooseRandom (words |> Array.filter ((<>) game.problem.answer)) }
     match game.reviewList with
     | [] -> fresh([], 4)
     | _ ->
@@ -36,7 +37,7 @@ let init _ =
 
 let update game word =
     if check game.problem word then
-        { game with score = game.score + 100; reviewList = game.reviewList |> List.filter ((<>) game.problem.answer); problem = newProblem game; feedback = $"Correct! '{word}' is the answer!" }
+        { game with score = game.score + 100; reviewList = game.reviewList |> List.filter ((<>) game.problem.answer); problem = newProblem game; feedback = $"Correct!" }
     else
         let answer = game.problem.answer
-        { game with score = game.score - 100; reviewList = answer::game.reviewList |> List.distinct |> List.sort; problem = newProblem game; feedback = $"No, the answer was '{answer}'." }
+        { game with score = game.score - 100; reviewList = answer::game.reviewList |> List.distinct |> List.sort; problem = newProblem game; feedback = $"No, that says '{word}'." }
