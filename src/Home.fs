@@ -28,7 +28,7 @@ type Msg =
 
 [<Emit("""rate => msg => {
     var msg = new SpeechSynthesisUtterance(msg);
-    msg.pitch = 28
+    msg.pitch = 3
     msg.rate = rate;
     window.speechSynthesis.speak(msg)
 }""")>]
@@ -44,7 +44,7 @@ let update msg model =
             speak 1. (game.feedback + $" Now... which word says '{v}'.")
         { model with game = game }
     | HelpLetter letter ->
-        speak 0.15 letter
+        speak 0.5 letter
         model
 
 type NavCmd = Fresh
