@@ -36,14 +36,14 @@ module private Impl =
     [<Emit("new $0.SpeechSynthesizer($1, $2)")>]
     let makeSpeechSynthesizer(sdk, speechConfig, audioConfig) = jsNative
 
-    let synthesizer : obj =
+    let synthesizer() : obj =
         let speechConfig = speech?SpeechConfig?fromSubscription("76cc92f037114e21b082bc53995e265f", "westus2")
         speechConfig?speechSynthesisVoiceName <- "en-US-MichelleNeural";
         let audioConfig = speech?AudioConfig?fromDefaultSpeakerOutput()
         makeSpeechSynthesizer(speech, speechConfig, audioConfig)
 
     let speak (txt: string) =
-        synthesizer?speakTextAsync(
+        synthesizer()?speakTextAsync(
             txt, (fun (x:obj) -> System.Console.WriteLine x), fun (x:obj) -> System.Console.WriteLine x)
 
     let update msg model =
