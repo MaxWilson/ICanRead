@@ -27,7 +27,7 @@ let newProblem(game:Game) =
     | [] -> fresh([], 4)
     | _ ->
         let reviewList = game.reviewList |> List.take (min game.reviewList.Length 3) |> Array.ofList |> Array.randomize |> List.ofArray
-        fresh([game.reviewList |> List.chooseRandom], 4)
+        fresh(reviewList, 4)
 
 let check problem word =
     problem.answer = word
