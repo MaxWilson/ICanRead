@@ -1,5 +1,7 @@
 ﻿module GameLogic
 
+open GameData
+
 type Problem = {
     words: string array
     answer: string
@@ -11,8 +13,6 @@ type Game = {
     reviewList: string list
     feedback: string
     }
-
-let words = [|"bed"; "store"; "math"; "dog"; "cat"; "tree"; "house"; "get"; "horse"; "lettuce"; "feet"; "good"; "foot" |]
 
 let newProblem(game:Game) =
     let fresh(seedWords, len) =
