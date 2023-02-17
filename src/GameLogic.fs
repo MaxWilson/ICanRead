@@ -41,4 +41,4 @@ let update game word =
         { game with score = game.score + 100; reviewList = game.reviewList |> List.filter ((<>) game.problem.answer); problem = newProblem game; feedback = $"Correct!" }
     else
         let answer = game.problem.answer
-        { game with score = game.score - 100; reviewList = answer::game.reviewList |> List.distinct |> List.sort; problem = newProblem game; feedback = $"No, that said '{word}'." }
+        { game with score = game.score - 100; reviewList = word::answer::game.reviewList |> List.distinct |> List.sort; problem = newProblem game; feedback = $"No, that said '{word}'." }
