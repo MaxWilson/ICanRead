@@ -1,15 +1,15 @@
 {
   "private": true,
   "scripts": {
-    "start": "dotnet fable watch src -e .jsx --sourceMaps --run vite --open http://localhost:4280",
+    "start": "dotnet fable watch src -e .jsx --sourceMaps --run vite --open http://localhost:4280 --port 3000",
     "build": "dotnet fable src -e .jsx --sourceMaps --run vite build",
     "serve": "vite serve"
   },
   "devDependencies": {
-    "ably": "^1.2.30",
+    "@vitejs/plugin-react": "^3.1.0",
     "react-konva": "^18.2.4",
     "use-sync-external-store": "^1.2.0",
-    "vite": "^2.9.15"
+    "vite": "^4.1.1"
   },
   "name": "swa-fable-starter",
   "version": "1.0.0",
@@ -17,6 +17,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-sketch-canvas": "^6.2.0",
-    "sass": "^1.57.1"
+    "sass": "^1.58.1"
   }
 }

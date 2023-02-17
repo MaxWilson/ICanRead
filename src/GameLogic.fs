@@ -26,6 +26,7 @@ let newProblem(game:Game) =
     match game.reviewList with
     | [] -> fresh([], 4)
     | _ ->
+        let reviewList = game.reviewList |> List.take (min game.reviewList.Length 3) |> Array.ofList |> Array.randomize |> List.ofArray
         fresh([game.reviewList |> List.chooseRandom], 4)
 
 let check problem word =
@@ -40,4 +41,4 @@ let update game word =
         { game with score = game.score + 100; reviewList = game.reviewList |> List.filter ((<>) game.problem.answer); problem = newProblem game; feedback = $"Correct!" }
     else
         let answer = game.problem.answer
-        { game with score = game.score - 100; reviewList = answer::game.reviewList |> List.distinct |> List.sort; problem = newProblem game; feedback = $"No, that says '{word}'." }
+        { game with score = game.score - 100; reviewList = answer::game.reviewList |> List.distinct |> List.sort; problem = newProblem game; feedback = $"No, that said '{word}'." }

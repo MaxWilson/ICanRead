@@ -55,7 +55,7 @@ let update msg model =
     match msg with
     | Pick word ->
         let game = GameLogic.update model.game word
-        speak 1. (game.feedback)
+        interrupt 1. (game.feedback)
         speak 1. $" Now, which button says '{game.problem.answer}'?"
         { model with game = game }, []
     | HelpLetter letter ->
@@ -65,7 +65,7 @@ let update msg model =
         interrupt 1. $" Which button says '{model.game.problem.answer}'?"
         model, Cmd.Empty
     | SayHello ->
-        speak 1.2 $"Hello {model.userName}. Can you show me which button says '{model.game.problem.answer}'?"
+        interrupt 1.2 $"Hello {model.userName}. Can you show me which button says '{model.game.problem.answer}'?"
         model, Cmd.Empty
 
 let init (userName: string) =
@@ -75,6 +75,7 @@ let init (userName: string) =
         }, []
 
 let class' (className: string) ctor (elements: _ seq) = ctor [prop.className className; prop.children elements]
+let classP' (className: string) ctor (props: IReactProperty list) = ctor (prop.className className::props)
 let classTxt' (className: string) ctor (txt: string) = ctor [prop.className className; prop.text txt]
 
 let navigateTo (url: string) =
@@ -96,7 +97,7 @@ let view model dispatch =
                                 prop.onClick (fun _ -> dispatch (HelpLetter (letter.ToString())))
                                 ]
                         ]
-                    Html.button [
+                    classP' "guessButton" Html.button [
                         prop.text word
                         prop.onClick (fun _ -> dispatch (Pick word))
                         ]
