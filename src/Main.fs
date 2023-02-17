@@ -26,6 +26,7 @@ module private Impl =
 
     type Msg =
         | SayHello
+        | SayHelloAndVerbalizeProblem
         | VerbalizeProblem
         | Pick of word: string
         | HelpLetter of letter: string
@@ -59,6 +60,9 @@ module private Impl =
             speak $" Which button says '{model.game.problem.answer}'?"
             model, Cmd.Empty
         | SayHello ->
+            speak $"Hi {model.userName}!"
+            model, Cmd.Empty
+        | SayHelloAndVerbalizeProblem ->
             speak $"Hi {model.userName}! Can you show me which button says '{model.game.problem.answer}'?"
             model, Cmd.Empty
 
@@ -66,14 +70,14 @@ module private Impl =
         {
             userName = if userName.Trim() = "" then "stranger" else userName
             game = GameLogic.init()
-            }, Cmd.ofMsg SayHello
+            }, Cmd.ofMsg SayHelloAndVerbalizeProblem
 
     let navigateTo (url: string) =
         Browser.Dom.window.location.assign url
 
     let view model dispatch =
         class' "main" Html.div [
-            classTxt' "userName" Html.div $"Hi, {model.userName}!"
+            classP' "userName"Html.div [prop.text $"Hi, {model.userName}!"; prop.onClick (thunk1 dispatch SayHello)]
             classTxt' "score" Html.div $"Score: {model.game.score}"
 
             class' "guessing" Html.div [
