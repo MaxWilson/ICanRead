@@ -98,7 +98,7 @@ module private Impl =
                     ]
 
 
-                Html.button [prop.text "Say it again"; prop.onClick (thunk1 dispatch VerbalizeProblem)]
+                classP' "againButton" Html.button [prop.text "Say it again"; prop.onClick (thunk1 dispatch VerbalizeProblem)]
                 if model.game.feedback <> "" then
                     Html.div model.game.feedback
 

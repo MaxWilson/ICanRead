@@ -7,6 +7,10 @@
     padding: 1rem
 .main > *
   font-size: 1.3rem
+.main button
+  font-size: 1.3rem
+  padding: 1rem
+
 .main
   display: grid
   grid-template-areas: "header header score" "main main main" "footer footer footer"
@@ -29,8 +33,9 @@
       font-style: italic
     .choices
       display: grid
-      grid-template-columns: 15rem 15rem
+      grid-template-columns: 14rem auto 1fr
       .guessWord
+        grid-column: 1
         user-select: None
         font-size: 1.2rem
         margin-bottom: 10px
@@ -45,8 +50,6 @@
         font-weight: bold
         border: thin solid red
       .guessButton
-        font-size: 1.3rem
-        padding: 1rem
         margin-left: 20px
         margin-bottom: 10px
   .help
