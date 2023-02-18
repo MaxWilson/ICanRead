@@ -3,7 +3,9 @@ module Common
 
 let thunk v _ = v
 let thunk1 f x _ = f x
-let thunk2 f x y = f x y
+let thunk2 f x y _ = f x y
+let thunk3 f x y z _ = f x y z
+let ignore2 _ _ = ()
 let notImpl msg = failwith $"Not implemented! Talk to Max if you want this feature. {msg}"
 let shouldntHappen data =
     System.Console.WriteLine(data :> obj)

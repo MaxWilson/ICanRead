@@ -13,11 +13,10 @@
     <Compile Include="UICommon.fs" />
     <Compile Include="GameData.fs" />
     <Compile Include="GameLogic.fs" />
-    <Compile Include="WebSync.fs" />
-    <None Include="Binding.Ably.fs" />
-    <Compile Include="Components.fs" />
-    <Compile Include="Main.fs" />
-    <Compile Include="HelloPage.fs" />
+    <Compile Include="Components\Settings.fs" />
+    <Compile Include="Components\HighScore.fs" />
+    <Compile Include="Components\Main.fs" />
+    <Compile Include="Components\HelloPage.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <ItemGroup>

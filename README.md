@@ -7,13 +7,12 @@ Flash cards to help children learn phonics and reading
     npm install -g @azure/static-web-apps-cli azure-functions-core-tools@4
 
 To On three separate command lines, start Fable, the az function, and swa emulator which ties them both together.
-    start npm start && start swa start http://localhost:3000 --api-location http://localhost:7071 && cd api && start func start --csharp
+    start swa start http://[::1]:3000 --api-location http://127.0.0.1:7071 --run "npm start" && cd api && start func start --csharp
     
 Alternatively you can run them all separately:
     
-    npm start
     cd api && func start --csharp         
-    swa start http://localhost:3000 --api-location http://localhost:7071
+    swa start http://localhost:3000 --api-location http://localhost:7071 --run "npm start"
     
     REM (Yes, that --csharp is deliberate, and func will still load the .fsproj correctly.)
 

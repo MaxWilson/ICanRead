@@ -1,4 +1,4 @@
-﻿module Components
+﻿module HighScore
 open Feliz
 open Fetch
 open Thoth.Fetch

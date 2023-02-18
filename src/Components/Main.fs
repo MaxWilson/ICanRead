@@ -6,14 +6,11 @@ open Feliz
 open Feliz.Router
 open Fable.Core.JsInterop
 
-open Components
 open Elmish
 open Elmish.Navigation
 open Thoth.Json
 open GameLogic
 open Fable.Core
-
-importSideEffects "./styles.sass"
 
 module private Impl =
 

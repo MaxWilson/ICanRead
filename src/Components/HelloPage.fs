@@ -3,14 +3,13 @@ module HelloPage
 open Elmish
 open Elmish.Navigation
 open Elmish.React
-open Main
 open Fable.Core
 open Fable.Core.JsInterop
 open Feliz
 open Feliz.UseElmish
 
 [<ReactComponent>]
-let HelloPage() =
+let HelloPage(mainPage) =
     let started, setStarted = React.useState false
     let name, setName = React.useState ""
     if not started then
@@ -22,4 +21,4 @@ let HelloPage() =
                 ]
             ]
     else
-        Main.Export.Component name
+        mainPage name
