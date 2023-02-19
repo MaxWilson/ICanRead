@@ -1,6 +1,6 @@
 ﻿module GameData
 
-let words = 
+let words =
     let raw = """
 a able about above absolute accent after again am and are as ashamed aside ask asleep assist associate assume assure at
 background bacon bad bag bake balance ball banana band bang bank bar bare be bed beyond big bike bill billion bin bind bird birth biscuit bit black blow blue board boat body boil bomb bond bone book boy branch brand brave bread break breakfast breast breath breathe breed brick brown bush business busy but butter button buy by
@@ -10,7 +10,7 @@ each ear early earn earth ease east easy eight eleven else email embarrass emoti
 feet first five flame flash flat flight flip float flood floor flow flower fly fold folk follow food fool foot football for force foreign forest forget forgive form forth fortnight fortunate fortune forward four fox frame frankly free freeze fresh friday friend fright frog from front frost fruit frustrate fry full fun fund fur furniture further future
 gain game garage get girl give glad glance glass glory go going good green group grow guarantee guard guess guest guide guilty gun guy
 had have he heap hear heart heat heaven heavy hedge height hello help her here hero hesitate hide high hill hire history hit hobby hold hole holiday home honest honey honour hook hope horse house
-i ice idea identify idiot if ignore ill illustrate image imagine immediate important impress improve in inch include income increase incredible indeed indicate individual industry influence inform injure innocent inside insist into is
+I ice idea identify idiot if ignore ill illustrate image imagine immediate important impress improve in inch include income increase incredible indeed indicate individual industry influence inform injure innocent inside insist into is
 know
 lettuce library licence lid lie life lift light like little look
 make man math me mother mrs much mud mum murder muscle music must my mystery
@@ -25,8 +25,8 @@ under
 walk was when who why will wind window wine wing winter wipe wire wise wish with within without witness wolf woman
 yes you
 zero"""
-    raw.Trim().Split(' ', '\r', '\n', ',', ';') |> Array.filter (not << System.String.IsNullOrWhiteSpace) |> Array.map (fun x -> x.ToLowerInvariant()) |> Array.distinct
-    // I used this code to help create the above list of words by processing text.    
+    raw.Trim().Split(' ', '\r', '\n', ',', ';') |> Array.filter (not << System.String.IsNullOrWhiteSpace) |> Array.map (fun x -> if x = "I" then x else x.ToLowerInvariant()) |> Array.distinct
+    // I used this code to help create the above list of words by processing text.
     //|> Array.sort
     //|> Array.groupBy (fun w -> w[0])
     //|> Array.map (fun (_, words) -> System.String.Join(" ", words))
