@@ -41,8 +41,10 @@ module private Impl =
         makeSpeechSynthesizer(speech, speechConfig, audioConfig)
 
     let speak (txt: string) =
-        synthesizer()?speakTextAsync(
-            txt, ignore, fun (x:obj) -> System.Console.Error.WriteLine("error", x))
+        promise {
+            synthesizer()?speakTextAsync(
+                txt, ignore, fun (x:obj) -> System.Console.WriteLine("error", x))
+        } |> Promise.start
 
     let update msg model =
         match msg with
@@ -57,10 +59,10 @@ module private Impl =
             speak $" Which button says '{model.game.problem.answer}'?"
             model, Cmd.Empty
         | SayHello ->
-            speak $"Hi {model.userName}!"
+            speak $"Hello {model.userName}!"
             model, Cmd.Empty
         | SayHelloAndVerbalizeProblem ->
-            speak $"Hi {model.userName}! Can you show me which button says '{model.game.problem.answer}'?"
+            speak $"Hello {model.userName}! Can you show me which button says '{model.game.problem.answer}'?"
             model, Cmd.Empty
 
     let init (userName: string) =
