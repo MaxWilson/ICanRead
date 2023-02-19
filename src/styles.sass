@@ -7,27 +7,32 @@
     padding: 1rem
 .main > *
   font-size: 1.3rem
-.main button
-  font-size: 1.3rem
-  padding: 1rem
 
 .main
   display: grid
-  grid-template-areas: "header header score" "main main main" "footer footer footer"
-  .userName
+  grid-template-areas: "header" "main" "footer"
+  row-gap: 10px
+  .header
+    display: flex
+    gap: 15px
     grid-area: header
-    user-select: None
     font-size: 1.8rem
-  .userName:hover
-    color: red
-    font-weight: bold
-
-  .score
-    grid-area: score
-    font-size: 1.8rem
-    font-style: italic
+    .score
+      font-style: italic
+    > *
+      flex: 0 1 auto
+    .userName
+      flex: 1 1 auto
+      user-select: None
+      font-size: 1.8rem
+    .userName:hover
+      color: red
+      font-weight: bold
   .guessing
     grid-area: main
+    button
+      font-size: 1.3rem
+      padding: 1rem
     .speakingVoice
       font-size: 1.8rem
       font-style: italic
