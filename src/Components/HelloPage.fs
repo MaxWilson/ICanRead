@@ -9,7 +9,7 @@ open Feliz
 open Feliz.UseElmish
 
 [<ReactComponent>]
-let HelloPage(mainPage) =
+let HelloPage mainPage =
     let started, setStarted = React.useState false
     let name, setName = React.useState ""
     if not started then
@@ -21,4 +21,4 @@ let HelloPage(mainPage) =
                 ]
             ]
     else
-        mainPage name
+        mainPage name (fun _ -> setStarted false)

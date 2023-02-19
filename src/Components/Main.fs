@@ -72,14 +72,14 @@ module private Impl =
     let navigateTo (url: string) =
         Browser.Dom.window.location.assign url
 
-    let view model dispatch =
+    let view model onQuit dispatch =
         class' "main" Html.div [
             class' "header" Html.span [
                 classP' "userName" Html.div [prop.text $"Hi, {model.userName}!"; prop.onClick (thunk1 dispatch SayHello)]
                 classTxt' "settings" Html.button $"Settings"
                 classTxt' "highscores" Html.button $"High scores"
                 classTxt' "score" Html.span $"Score: {model.game.score}"
-                classTxt' "quit" Html.button $"Quit"
+                classP' "quit" Html.button [prop.text $"Quit"; prop.onClick (thunk1 onQuit ())]
                 ]
 
             class' "guessing" Html.div [
@@ -114,6 +114,6 @@ module public Export =
     open Feliz.UseElmish
 
     [<ReactComponent>]
-    let Component(name) =
+    let Component (name: string) onQuit =
         let model, dispatch = React.useElmish((fun _ -> Program.mkProgram init update (fun _ _ -> ())), arg=name)
-        view model dispatch
+        view model onQuit dispatch
