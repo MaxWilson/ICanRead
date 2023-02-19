@@ -42,7 +42,7 @@ module private Impl =
 
     let speak (txt: string) =
         synthesizer()?speakTextAsync(
-            txt, (fun (x:obj) -> System.Console.WriteLine x), fun (x:obj) -> System.Console.WriteLine x)
+            txt, ignore, fun (x:obj) -> System.Console.Error.WriteLine("error", x))
 
     let update msg model =
         match msg with
@@ -75,7 +75,7 @@ module private Impl =
     let view model onQuit dispatch =
         class' "main" Html.div [
             class' "header" Html.span [
-                classP' "userName" Html.div [prop.text $"Hi, {model.userName}!"; prop.onClick (thunk1 dispatch SayHello)]
+                classP' "userName" Html.div [prop.text $"Hello, {model.userName}!"; prop.onClick (thunk1 dispatch SayHello)]
                 classTxt' "settings" Html.button $"Settings"
                 classTxt' "highscores" Html.button $"High scores"
                 classTxt' "score" Html.span $"Score: {model.game.score}"
