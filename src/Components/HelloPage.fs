@@ -14,12 +14,7 @@ open Types
 let HelloPage (props: HelloPage.Props) =
     let name, setName = React.useState ""
     let page, setPage = React.useState Hello
-#if DEBUG
-    // workaround for strange issue in dev where state updates don't get flushed/UI doesn't update after setState. E.g. clicking the Start button does nothing until you open the Chrome dev console.
-    let setPage x =
-        setPage x
-        Fable.React.ReactDomBindings.ReactDom.flushSync(ignore)
-#endif
+
     match page with
     | Hello ->
         class' "helloPage" Html.div [
