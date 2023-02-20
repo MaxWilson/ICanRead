@@ -2,6 +2,7 @@
 open Feliz
 open Feliz.UseElmish
 open Elmish
+open Types.Settings
 
 [<AutoOpen>]
 module private Impl =
@@ -13,9 +14,10 @@ module private Impl =
         | Msg ->
             model
 
-let Component () onQuit =
+[<ReactComponent>]
+let Component (props: Props) =
     let model, dispatch = React.useElmish(thunk3 Program.mkSimple init update ignore2)
     class' "settings" Html.div [
         Html.div "Placeholder"
-        Html.button [prop.onClick (thunk1 onQuit ()); prop.text "Done"]
+        Html.button [prop.onClick (thunk1 props.onQuit ()); prop.text "Done"]
         ]

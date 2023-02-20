@@ -38,6 +38,6 @@ let HelloPage (props: HelloPage.Props) =
     | Main ->
         Main.Export.Component name (thunk1 setPage Hello)
     | Settings ->
-        Settings.Component () (thunk1 setPage Hello)
+        Settings.Component { onQuit = thunk1 setPage Hello }
     | HighScore ->
         HighScore.Component (props.scores, thunk1 setPage Hello |> Some) ignore

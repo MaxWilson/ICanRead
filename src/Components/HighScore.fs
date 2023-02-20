@@ -4,6 +4,8 @@ open Elmish
 open Feliz.UseElmish
 open Browser.Types
 open System
+open Fable.DateFunctions
+open Types.HighScore
 
 [<AutoOpen>]
 module private Impl =
@@ -26,22 +28,21 @@ module private Impl =
 
 [<ReactComponent>]
 let Component (args, (onQuit: (unit -> unit) option)) dispatch =
-    if not (fst args |> unbox) then
-        breakHere()
     let showRecent, setRecent = React.useState false
     let model, dispatch = React.useElmish(thunk3 Program.mkSimple init update ignore2, args)
     class' "highScores" Html.div [
-        Html.text "Scores"
-        class' "recent" Html.div [
-            for row in model.recent do
-                Html.div row.name
-                Html.div row.score
-                Html.div (row.date.Date.ToString())
-            ]
-        class' "allTime" Html.div [
-            for row in model.allTime do
-                Html.div row.name
-                Html.div row.score
-                Html.div (row.date.Date.ToString())
-            ]
+        classTxt' "title" Html.div "High Scores"
+        let scoresOf className title (rows: Row array) =
+            class' className Html.div [
+                classTxt' "header" Html.div title
+                Html.div "Name"
+                Html.div "Score"
+                Html.div "Date"
+                for row in rows do
+                    Html.div row.name
+                    Html.div row.score
+                    Html.div (row.date.Format "MM/dd/yyyy")
+                ]
+        scoresOf "allTime" "All time" model.allTime
+        scoresOf "recent" "This week" model.recent
         ]

@@ -110,3 +110,28 @@ img, picture, svg, video
   .help
     font-style: italic
     grid-area: footer
+
+.highScores
+  display: grid
+  grid-template-columns: repeat(auto, 1fr)
+  grid-template-areas: ". hd hd ." "sd sd main main"
+  .title
+    grid-area: hd
+    justify-self: center
+    font-weight: bolder
+    font-size: 1.6rem
+  .recent
+    grid-area: main
+  .allTime
+    grid-area: sd
+  .recent, .allTime
+    display: grid
+    border: medium solid black
+    margin: 10px
+    padding: 10px
+    .header
+      justify-self: center
+      font-weight: bold
+      grid-row: 1
+      grid-column: 1/-1
+    grid-template-columns: 1fr 1fr 1fr
