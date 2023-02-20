@@ -3,6 +3,7 @@ open Feliz
 open Feliz.UseElmish
 open Elmish
 
+[<AutoOpen>]
 module private Impl =
     type Model = { data: unit }
     let init _ = { data = () }
@@ -16,9 +17,6 @@ module private Impl =
 
             ]
 
-
-
-open Impl
 let Component() =
     let model, dispatch = React.useElmish(thunk3 Program.mkSimple init update ignore2)
     view model dispatch

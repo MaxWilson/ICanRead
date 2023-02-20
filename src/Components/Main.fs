@@ -76,13 +76,9 @@ module private Impl =
 
     let view model onQuit dispatch =
         class' "main" Html.div [
-            class' "header" Html.span [
+            Header.header ([
                 classP' "userName" Html.div [prop.text $"Hello, {model.userName}!"; prop.onClick (thunk1 dispatch SayHello)]
-                classTxt' "settings" Html.button $"Settings"
-                classTxt' "highscores" Html.button $"High scores"
-                classTxt' "score" Html.span $"Score: {model.game.score}"
-                classP' "quit" Html.button [prop.text $"Quit"; prop.onClick (thunk1 onQuit ())]
-                ]
+                ], model.game.score, (thunk1 onQuit ()))
 
             class' "guessing" Html.div [
                 class' "choices" Html.section [

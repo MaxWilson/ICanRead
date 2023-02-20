@@ -1,14 +1,33 @@
-.helloPage *
-  font-size: 1.3rem
-.helloPage > *
-  margin: 1rem
+@keyframes slideIn
+   0%
+      transform: translateY(-100vh)
+   100%
+      transform: translateY(0)
+
 .helloPage
+  animation: slideIn 1s
+  display: grid
+  grid-template-areas: "h h h" "d d b"
+  *
+    font-size: 1.3rem
+  > *
+    margin: 1rem
+  .header
+    grid-area: h
+    display: flex
+    .settings
+      flex: 0 1 auto
+    .greeting
+      flex: 1 1 auto
   .startButton
+    grid-area: b
     padding: 1rem
+
 .main > *
   font-size: 1.3rem
 
 .main
+  animation: slideIn 1s
   display: grid
   grid-template-areas: "header" "main" "footer"
   row-gap: 10px

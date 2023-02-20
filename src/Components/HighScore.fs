@@ -1,11 +1,44 @@
 ﻿module HighScore
 open Feliz
-open Fetch
-open Thoth.Fetch
+open Elmish
+open Feliz.UseElmish
+open Browser.Types
+open System
 
-type 't Deferred = NotStarted | InProgress | Ready of 't
-type Point = { x: float; y: float }
-type Stroke = { points: float array } // flattened coordinate list, e.g. [x1;y1;x2;y2] and so on. Perf optimization relative to flattening with every render.
-type GraphicElement =
-    | Stroke of Stroke * color: string * brushSize: string
-    | Text of string * Point * color: string
+[<AutoOpen>]
+module private Impl =
+    open Types.HighScore
+
+    type Model = {
+        allTime: Row array
+        recent: Row array
+        }
+
+    let init (allTime, recent) =
+        {   allTime = allTime
+            recent = recent }
+
+    type Msg = Msg
+
+    let update msg model =
+        match msg with
+        | Msg -> model
+
+[<ReactComponent>]
+let HighScores args onQuit =
+    let showRecent, setRecent = React.useState false
+    let model, dispatch = React.useElmish(thunk3 Program.mkSimple init update ignore2, args)
+    class' "highScores" Html.div [
+        class' "recent" Html.div [
+            for row in model.recent do
+                Html.div row.name
+                Html.div row.score
+                Html.div (row.date.Date.ToString())
+            ]
+        class' "allTime" Html.div [
+            for row in model.allTime do
+                Html.div row.name
+                Html.div row.score
+                Html.div (row.date.Date.ToString())
+            ]
+        ]
