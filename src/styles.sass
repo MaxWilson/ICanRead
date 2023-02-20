@@ -1,3 +1,25 @@
+// CSS resets per Kevin Powell
+
+*, *::before, *::after
+    box-sizing: border-box
+
+*
+    margin: 0
+    padding: 0
+    font: inherit
+
+html
+    color-scheme: dark light
+
+body
+    min-height: 100vh
+
+img, picture, svg, video
+    display: block
+    max-width: 100%
+
+// ICanRead-specific logic here
+
 @keyframes slideIn
    0%
       transform: translateY(-100vh)
@@ -5,28 +27,37 @@
       transform: translateY(0)
 
 .helloPage
+  margin: 1rem
   animation: slideIn 1s
   display: grid
-  grid-template-areas: "h h h" "d d b"
+  grid-template-areas: "header" "input" "footer"
   *
     font-size: 1.3rem
   > *
-    margin: 1rem
+    margin-bottom: 1rem
   .header
-    grid-area: h
+    grid-area: header
     display: flex
     .settings
       flex: 0 1 auto
     .greeting
       flex: 1 1 auto
-  .startButton
-    grid-area: b
-    padding: 1rem
+  .inputArea
+    grid-area: input
+    display: flex
+    input
+      padding: 1rem
+    .startButton
+      padding: 1rem
+      margin-left: 10px
+  .footer
+    grid-area: footer
 
 .main > *
   font-size: 1.3rem
 
 .main
+  margin: 10px
   animation: slideIn 1s
   display: grid
   grid-template-areas: "header" "main" "footer"
@@ -57,7 +88,7 @@
       font-style: italic
     .choices
       display: grid
-      grid-template-columns: 14rem auto 1fr
+      grid-template-columns: minmax(14rem, auto) auto 1fr
       .guessWord
         grid-column: 1
         user-select: None

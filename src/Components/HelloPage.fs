@@ -11,7 +11,7 @@ open Browser.Types
 open Types
 
 [<ReactComponent>]
-let HelloPage highScores =
+let HelloPage (props: HelloPage.Props) =
     let name, setName = React.useState ""
     let page, setPage = React.useState Hello
 #if DEBUG
@@ -22,26 +22,27 @@ let HelloPage highScores =
 #endif
     match page with
     | Hello ->
-        classP' "helloPage" Html.form [
-            prop.children [
-                class' "header" Html.span [
-                    classTxt' "greeting" Html.div $"Hello! What's your name?"
-                    classP' "settings" Html.button [prop.type'.button; prop.text $"Settings"]
-                    ]
+        class' "helloPage" Html.div [
+            class' "header" Html.span [
+                classTxt' "greeting" Html.div $"Hello! What's your name?"
+                classP' "settings" Html.button [prop.onClick (thunk1 setPage Settings); prop.type'.button; prop.text $"Settings"]
+                ]
 
-                Html.input [prop.type'.text; prop.valueOrDefault name; prop.onChange setName; prop.autoFocus true]
-                Html.div [
+            classP' "inputArea" Html.form [
+                prop.children [
+                    Html.input [prop.type'.text; prop.valueOrDefault name; prop.onChange setName; prop.autoFocus true]
                     Html.button [prop.className "startButton"; prop.type'.submit; prop.text "Start"]
                     ]
+                prop.onSubmit (fun e ->
+                    e.preventDefault()
+                    setPage Main
+                    )
                 ]
-            prop.onSubmit (fun e ->
-                e.preventDefault()
-                setPage Main
-                )
+            HighScore.Component (props.scores, None) ignore
             ]
     | Main ->
-        Main.Export.Component name (fun _ -> setPage Hello)
+        Main.Export.Component name (thunk1 setPage Hello)
     | Settings ->
-        Settings.Component()
+        Settings.Component () (thunk1 setPage Hello)
     | HighScore ->
-        HighScore.HighScores highScores (fun _ -> setPage Hello)
+        HighScore.Component (props.scores, thunk1 setPage Hello |> Some) ignore

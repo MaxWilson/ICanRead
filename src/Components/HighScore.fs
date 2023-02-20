@@ -25,10 +25,13 @@ module private Impl =
         | Msg -> model
 
 [<ReactComponent>]
-let HighScores args onQuit =
+let Component (args, (onQuit: (unit -> unit) option)) dispatch =
+    if not (fst args |> unbox) then
+        breakHere()
     let showRecent, setRecent = React.useState false
     let model, dispatch = React.useElmish(thunk3 Program.mkSimple init update ignore2, args)
     class' "highScores" Html.div [
+        Html.text "Scores"
         class' "recent" Html.div [
             for row in model.recent do
                 Html.div row.name

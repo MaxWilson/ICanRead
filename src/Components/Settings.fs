@@ -12,11 +12,10 @@ module private Impl =
         match msg with
         | Msg ->
             model
-    let view model dispatch =
-        class' "settings" Html.div [
 
-            ]
-
-let Component() =
+let Component () onQuit =
     let model, dispatch = React.useElmish(thunk3 Program.mkSimple init update ignore2)
-    view model dispatch
+    class' "settings" Html.div [
+        Html.div "Placeholder"
+        Html.button [prop.onClick (thunk1 onQuit ()); prop.text "Done"]
+        ]

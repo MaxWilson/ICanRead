@@ -9,3 +9,8 @@ module HighScore =
         score: int
         date: DateTimeOffset
         }
+
+module HelloPage =
+    type Props = {
+        scores: HighScore.Row array * HighScore.Row array
+        }
