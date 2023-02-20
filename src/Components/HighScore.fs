@@ -35,10 +35,12 @@ let Component (args, (onQuit: (unit -> unit) option)) dispatch =
         let scoresOf className title (rows: Row array) =
             class' className Html.div [
                 classTxt' "header" Html.div title
-                Html.div "Name"
-                Html.div "Score"
-                Html.div "Date"
-                for row in rows do
+                classTxt' "bolded" Html.div "Place"
+                classTxt' "bolded" Html.div "Name"
+                classTxt' "bolded" Html.div "Score"
+                classTxt' "bolded" Html.div "Date"
+                for ix, row in rows |> Array.mapi (fun i row -> i+1, row) do
+                    Html.div (match ix with 1 -> "1st" | 2 -> "2nd" | 3 -> "3rd" | n -> $"{n}th")
                     Html.div row.name
                     Html.div row.score
                     Html.div (row.date.Format "MM/dd/yyyy")
