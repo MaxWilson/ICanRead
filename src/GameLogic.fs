@@ -7,11 +7,12 @@ type Problem = {
     answer: string
     }
 
+type Feedback = Correct | Incorrect
 type Game = {
     score: int
     problem: Problem
     reviewList: string list
-    feedback: string
+    feedback: Feedback * string
     }
 
 let newProblem(game:Game) =
@@ -33,12 +34,12 @@ let check problem word =
     problem.answer = word
 
 let init _ =
-    let game = { score = 0; problem = { words = [||]; answer = "" }; reviewList = []; feedback = "" }
+    let game = { score = 0; problem = { words = [||]; answer = "" }; reviewList = []; feedback = Correct, "" }
     { game with problem = newProblem game }
 
 let update game word =
     if check game.problem word then
-        { game with score = game.score + 100; reviewList = game.reviewList |> List.filter ((<>) game.problem.answer); problem = newProblem game; feedback = $"Correct!" }
+        { game with score = game.score + 100; reviewList = game.reviewList |> List.filter ((<>) game.problem.answer); problem = newProblem game; feedback = Correct, $"Correct!" }
     else
         let answer = game.problem.answer
-        { game with score = game.score - 100; reviewList = word::answer::game.reviewList |> List.distinct |> List.sort; problem = newProblem game; feedback = $"No, that said '{word}'." }
+        { game with score = game.score - 100; reviewList = word::answer::game.reviewList |> List.distinct |> List.sort; problem = newProblem game; feedback = Incorrect, $"No, that said '{word}'." }

@@ -50,17 +50,48 @@ module private Impl =
                 txt, ignore, fun (x:obj) -> System.Console.WriteLine("error", x))
         } |> Promise.start
 
+    let makeSound(url) =
+        Promise.create(fun resolve reject ->
+            let audio = Browser.Dom.document.createElement("audio")
+            audio?src <- url
+            audio?autoplay <- true
+            audio?controls <- false
+            audio?loop <- false
+            audio?onended <- fun _ -> resolve(); audio?remove()
+            audio?onerror <- fun e -> reject e
+            )
+
+    let cheers =
+        [
+            "Cheer1.m4a"
+            "Cheer2.m4a"
+            "Cheer3.m4a"
+            "Cheer4.m4a"
+            "Cheer5.m4a"
+            "1_person_cheering-Jett_Rifkin-1851518140.mp3"
+            ] |> List.map (sprintf "../assets/%s")
+
+    let bomb = "../assets/Grenade Explosion-SoundBible.com-2100581469.mp3"
+
     let update msg model =
         match msg with
         | Pick word ->
             let game = GameLogic.update model.game word
             match model.sound.current with
             | Verbose ->
-                speak $"{game.feedback} Now, which button says '{game.problem.answer}'?"
+                speak $"{snd game.feedback} Now, which button says '{game.problem.answer}'?"
             | Terse ->
                 speak game.problem.answer
             | Effects ->
-                speak game.problem.answer
+                promise {
+                    try
+                        do! makeSound (if game.feedback |> fst = Correct then List.chooseRandom cheers else bomb)
+                        printfn "Made a sound"
+                    with err ->
+                        printfn $"error: {err}"
+                    printfn $"Speaking {game.problem.answer}"
+                    speak game.problem.answer
+                    } |> Promise.start
             { model with game = game }, []
         | HelpLetter letter ->
             speak letter
@@ -125,8 +156,9 @@ module private Impl =
                     ]
 
                 classP' "againButton" Html.button [prop.text "Say it again"; prop.onClick (thunk1 dispatch VerbalizeProblem)]
-                if model.game.feedback <> "" then
-                    Html.div model.game.feedback
+                let feedback = model.game.feedback |> snd
+                if feedback <> "" then
+                    Html.div feedback
 
                 if model.game.reviewList.Length > 0 then
                     Html.div $"""Review list: {model.game.reviewList |> String.join ", " }"""
