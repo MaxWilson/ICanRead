@@ -99,8 +99,7 @@ module private Impl =
                 speak model.game.problem.answer
             model, Cmd.Empty
         | SayHello ->
-            if model.sound.current = Verbose then
-                speak $"Hello {model.userName}!"
+            speak $"Hello {model.userName}!"
             model, Cmd.Empty
         | SayHelloAndVerbalizeProblem ->
             match model.sound.current with
