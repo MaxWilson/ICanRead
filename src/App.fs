@@ -18,7 +18,10 @@ let root = Feliz.ReactDOM.createRoot(Browser.Dom.document.getElementById "root")
 
 [<Feliz.ReactComponent>]
 let Root() =
-    let sound, setSound = React.useState Verbose
+    let sound, setSound = React.useState (LocalStorage.Sound.read())
+    let setSound v =
+        LocalStorage.Sound.write v
+        setSound v
     HelloPage.HelloPage { scores = highScores; settings = { currentSound = sound; setSound = setSound } }
 
 root.render(Root())

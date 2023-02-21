@@ -5,7 +5,6 @@ open System
 // we put certain types in here so we can export only ReactComponents from the associated pages,
 // and therefore not mess up hot-loading during development. (It's a limitation of React Fast-refresh.)
 type PageSelector = Hello | Main | Settings | HighScore
-type Sound = Verbose | Effects | Terse
 
 module HighScore =
     type Row = {
