@@ -27,6 +27,10 @@ let Component (props: Props) =
                 Html.input [prop.type'.checkbox; prop.id chkId; prop.readOnly true; prop.isChecked ((option = sound)); prop.onClick(thunk1 setSound option)]
                 Html.label [prop.htmlFor chkId; prop.text $"{option}"]
             ]
-
-        Html.button [prop.onClick (thunk1 props.onQuit ()); prop.text "Done"]
+        match props.onQuit with
+        | None -> ()
+        | Some quit ->
+            Html.div [
+                Html.button [prop.text "OK"; prop.onClick (thunk1 quit ())]
+                ]
         ]

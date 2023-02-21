@@ -26,6 +26,10 @@ img, picture, svg, video
    100%
       transform: translateY(0)
 
+// any page change will slide in
+#root > *
+  animation: slideIn 1s
+
 .bolded
   font-weight: bold
 
@@ -115,10 +119,9 @@ img, picture, svg, video
     grid-area: footer
 
 .highScores
-  animation: slideIn 1s
   display: grid
-  grid-template-columns: repeat(auto, 1fr)
   grid-template-areas: ". hd hd ." "sd sd main main"
+  gap: 10px
   .title
     grid-area: hd
     justify-self: center
@@ -131,7 +134,6 @@ img, picture, svg, video
   .recent, .allTime
     display: grid
     border: medium solid black
-    margin: 10px
     padding: 10px
     .header
       justify-self: center
@@ -148,4 +150,10 @@ img, picture, svg, video
       padding: 1rem
 
 .settings
-  animation: slideIn 1s
+  *
+    font-Size: 1.3rem
+  label
+    margin-left: 5px
+    margin-right: 10px
+#root > .settings
+  margin: 1rem

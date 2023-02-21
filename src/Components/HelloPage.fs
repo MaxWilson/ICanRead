@@ -13,14 +13,12 @@ open Types
 [<ReactComponent>]
 let HelloPage (props: HelloPage.Props) =
     let name, setName = React.useState ""
-    let page, setPage = React.useState Hello
-    let backToHello = (thunk1 setPage Hello)
-    match page with
-    | Hello ->
+    let started, setStarted = React.useState false
+    let backToHello = (thunk1 setStarted false)
+    if not started then
         class' "helloPage" Html.div [
             class' "header" Html.span [
                 classTxt' "greeting" Html.div $"Hello! What's your name?"
-                classP' "settings" Html.button [prop.onClick (thunk1 setPage Settings); prop.type'.button; prop.text $"Settings"]
                 ]
 
             classP' "inputArea" Html.form [
@@ -30,14 +28,11 @@ let HelloPage (props: HelloPage.Props) =
                     ]
                 prop.onSubmit (fun e ->
                     e.preventDefault()
-                    setPage Main
+                    setStarted true
                     )
                 ]
+            Settings.Component { settings = props.settings; onQuit = None }
             HighScore.Component { scores = props.scores; onQuit = None }
             ]
-    | Main ->
-        Main.Export.Component { userName = name; scores = props.scores; settings = props.settings } backToHello
-    | Settings ->
-        Settings.Component { onQuit = thunk1 setPage Hello; settings = props.settings }
-    | HighScore ->
-        HighScore.Component { scores = props.scores; onQuit = Some backToHello }
+    else
+        Main.Component { userName = name; scores = props.scores; settings = props.settings } backToHello

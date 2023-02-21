@@ -21,7 +21,6 @@ module private Impl =
         userName: string
         game: Game
         openDialog: Modal option
-        sound: Sound IRefValue
         }
 
     type Msg =
@@ -73,11 +72,11 @@ module private Impl =
 
     let bomb = "../assets/Grenade Explosion-SoundBible.com-2100581469.mp3"
 
-    let update msg model =
+    let update (sound: Sound IRefValue) msg model =
         match msg with
         | Pick word ->
             let game = GameLogic.update model.game word
-            match model.sound.current with
+            match sound.current with
             | Verbose ->
                 speak $"{snd game.feedback} Now, which button says '{game.problem.answer}'?"
             | Terse ->
@@ -92,7 +91,7 @@ module private Impl =
             speak letter
             model, Cmd.Empty
         | VerbalizeProblem ->
-            match model.sound.current with
+            match sound.current with
             | Verbose ->
                 speak $" Which button says '{model.game.problem.answer}'?"
             | Terse | Effects ->
@@ -102,7 +101,7 @@ module private Impl =
             speak $"Hello {model.userName}!"
             model, Cmd.Empty
         | SayHelloAndVerbalizeProblem ->
-            match model.sound.current with
+            match sound.current with
             | Verbose ->
                 speak $"Hello {model.userName}! Can you show me which button says '{model.game.problem.answer}'?"
             | Terse | Effects ->
@@ -111,12 +110,11 @@ module private Impl =
         | SetDialog v ->
             { model with openDialog = v }, Cmd.Empty
 
-    let init (userName: string, sound) =
+    let init (userName: string) =
         {
             userName = if userName.Trim() = "" then "stranger" else userName
             game = GameLogic.init()
             openDialog = None
-            sound = sound
             }, Cmd.ofMsg SayHelloAndVerbalizeProblem
 
     let navigateTo (url: string) =
@@ -159,20 +157,19 @@ module private Impl =
                 ]
             ]
 
-module public Export =
-    open Impl
-    open Feliz.UseElmish
+open Impl
+open Feliz.UseElmish
 
-    [<ReactComponent>]
-    let Component (props: Types.Main.Props) onQuit =
-        let name = props.userName
-        let speaker = React.useRef props.settings.currentSound
-        React.useEffect(fun () -> speaker.current <- props.settings.currentSound)
-        let model, dispatch = React.useElmish((fun _ -> Program.mkProgram init update (fun _ _ -> ())), arg=(name,speaker))
-        match model.openDialog with
-        | None ->
-            view model onQuit dispatch
-        | Some Settings ->
-            Settings.Component { onQuit = (thunk1 dispatch (SetDialog None)); settings = props.settings }
-        | Some HighScore ->
-            HighScore.Component { scores = props.scores; onQuit = Some (thunk1 dispatch (SetDialog None)) }
+[<ReactComponent>]
+let Component (props: Types.Main.Props) onQuit =
+    let name = props.userName
+    let sound = React.useRef props.settings.currentSound
+    sound.current <- props.settings.currentSound
+    let model, dispatch = React.useElmish((fun _ -> Program.mkProgram init (update sound) (fun _ _ -> ())), arg=name)
+    match model.openDialog with
+    | None ->
+        view model onQuit dispatch
+    | Some Settings ->
+        Settings.Component { onQuit = Some (thunk1 dispatch (SetDialog None)); settings = props.settings }
+    | Some HighScore ->
+        HighScore.Component { scores = props.scores; onQuit = Some (thunk1 dispatch (SetDialog None)) }

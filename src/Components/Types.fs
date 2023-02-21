@@ -23,7 +23,7 @@ module Settings =
         setSound: Sound -> unit
         }
     type Props = {
-        onQuit: unit -> unit
+        onQuit: (unit -> unit) option
         settings: Settings
         }
 
