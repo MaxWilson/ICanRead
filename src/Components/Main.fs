@@ -38,15 +38,14 @@ module private Impl =
     let makeSpeechSynthesizer(sdk, speechConfig, audioConfig) = jsNative
 
     let synthesizer(token) : obj =
-        let resourceId = "/subscriptions/2f4e9444-9448-4618-b9e4-4d41ce647375/resourceGroups/ShiningSword/providers/Microsoft.CognitiveServices/accounts/shiningswordspeech"
-        let speechConfig = speech?SpeechConfig?fromAuthorizationToken($"aad#{resourceId}#{token}", "westus2")
+        let speechConfig = speech?SpeechConfig?fromSubscription("526292c93472431687fbbd3bd8432fdd", "westus2")
         speechConfig?speechSynthesisVoiceName <- "en-US-MichelleNeural";
         let audioConfig = speech?AudioConfig?fromDefaultSpeakerOutput()
         makeSpeechSynthesizer(speech, speechConfig, audioConfig)
 
-    let speak (token:string) (txt: string) =
+    let speak (txt: string) =
         promise {
-            synthesizer(token)?speakTextAsync(
+            synthesizer()?speakTextAsync(
                 txt, ignore, fun (x:obj) -> System.Console.WriteLine("error", x))
         } |> Promise.start
 
@@ -73,7 +72,7 @@ module private Impl =
 
     let bomb = "../assets/Grenade Explosion-SoundBible.com-2100581469.mp3"
 
-    let update (speak, sound: Sound IRefValue) msg model =
+    let update (sound: Sound IRefValue) msg model =
         match msg with
         | Pick word ->
             let game = GameLogic.update model.game word
@@ -166,7 +165,7 @@ let Component (props: Types.Main.Props) onQuit =
     let name = props.userName
     let sound = React.useRef props.settings.currentSound
     sound.current <- props.settings.currentSound
-    let model, dispatch = React.useElmish((fun _ -> Program.mkProgram init (update (speak props.speechToken, sound)) (fun _ _ -> ())), arg=name)
+    let model, dispatch = React.useElmish((fun _ -> Program.mkProgram init (update sound) (fun _ _ -> ())), arg=name)
     match model.openDialog with
     | None ->
         view model onQuit dispatch

@@ -21,17 +21,14 @@ let highScores =
         |]
 
 [<Feliz.ReactComponent>]
-let Root(speechToken: SpeechToken) =
+let Root() =
     let sound, setSound = React.useState (LocalStorage.Sound.read())
     let setSound v =
         LocalStorage.Sound.write v
         setSound v
-    HelloPage.HelloPage { speechToken = speechToken.token; scores = highScores; settings = { currentSound = sound; setSound = setSound } }
+    HelloPage.HelloPage { scores = highScores; settings = { currentSound = sound; setSound = setSound } }
 
 let root = Feliz.ReactDOM.createRoot(Browser.Dom.document.getElementById "root")
 
-promise {
-    let! speechToken = Thoth.Fetch.Fetch.fetchAs "./api/GetSpeechToken"
-    root.render(Root(speechToken))
-    } |> Promise.start
+root.render(Root())
 

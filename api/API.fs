@@ -103,17 +103,6 @@ module API =
                 return $"Could not deserialize JSON because '{err}'" |> InvalidOperationException |> raise
         }
 
-    let cred = new DefaultAzureCredential()
-
-    [<FunctionName("GetSpeechToken")>]
-    let GetSpeechToken ([<HttpTrigger(AuthorizationLevel.Anonymous, "get")>] req: HttpRequest, log: ILogger) : SpeechToken =
-        match System.Environment.GetEnvironmentVariable("AzureSpeechSDKKey") with
-        | v when System.String.IsNullOrWhiteSpace v -> failwith "You must add AzureSpeechSDKKey to your local.settings.json file"
-        | key ->
-            let context = new Azure.Core.TokenRequestContext([| "https://cognitiveservices.azure.com/.default" |])
-            let tokenResponse = cred.GetToken(context, System.Threading.CancellationToken.None);
-            { token = tokenResponse.Token }
-
     // exists only for debugging purposes
     [<FunctionName("GetMessage")>]
     let GetMessage

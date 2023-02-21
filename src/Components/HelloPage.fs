@@ -35,4 +35,4 @@ let HelloPage (props: HelloPage.Props) =
             HighScore.Component { scores = props.scores; onQuit = None }
             ]
     else
-        Main.Component { userName = name; speechToken = props.speechToken; scores = props.scores; settings = props.settings } backToHello
+        Main.Component { userName = name; scores = props.scores; settings = props.settings } backToHello
