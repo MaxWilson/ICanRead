@@ -5,24 +5,33 @@ open Fable.Core.JsInterop
 open Types.HighScore
 open Types
 open Feliz
-
+open DataContracts
 importSideEffects "./styles.sass"
+
 let highScores =
     [|
-        { name = "Therion"; score = 1000; date = System.DateTimeOffset.Now }
+        { name = "Therion"; score = 3000; date = System.DateTimeOffset.Now }
+        { name = "Jerry"; score = 2000; date = System.DateTimeOffset.Now }
+        { name = "Mutt"; score = 1000; date = System.DateTimeOffset.Now }
+        { name = "Tim"; score = 4000; date = System.DateTimeOffset.Now }
         |],
     [|
-        { name = "Therion"; score = 1000; date = System.DateTimeOffset.Now }
+        { name = "Therion"; score = 3000; date = System.DateTimeOffset.Now }
+        { name = "Tim"; score = 400; date = System.DateTimeOffset.Now }
         |]
-let root = Feliz.ReactDOM.createRoot(Browser.Dom.document.getElementById "root")
 
 [<Feliz.ReactComponent>]
-let Root() =
+let Root(speechToken: SpeechToken) =
     let sound, setSound = React.useState (LocalStorage.Sound.read())
     let setSound v =
         LocalStorage.Sound.write v
         setSound v
-    HelloPage.HelloPage { scores = highScores; settings = { currentSound = sound; setSound = setSound } }
+    HelloPage.HelloPage { speechToken = speechToken.token; scores = highScores; settings = { currentSound = sound; setSound = setSound } }
 
-root.render(Root())
+let root = Feliz.ReactDOM.createRoot(Browser.Dom.document.getElementById "root")
+
+promise {
+    let! speechToken = Thoth.Fetch.Fetch.fetchAs "./api/GetSpeechToken"
+    root.render(Root(speechToken))
+    } |> Promise.start
 

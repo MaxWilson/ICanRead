@@ -32,11 +32,13 @@ module Main =
         userName: string
         scores: HighScore.Row array * HighScore.Row array
         settings: Settings.Settings
+        speechToken: string
         }
 
 module HelloPage =
     type Props = {
         scores: HighScore.Row array * HighScore.Row array
         settings: Settings.Settings
+        speechToken: string
         }
 

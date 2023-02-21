@@ -16,6 +16,7 @@ open Microsoft.Azure.WebJobs.Extensions.Http
 open Microsoft.AspNetCore.Routing
 open System.Threading.Tasks
 open Azure.Messaging.WebPubSub
+open DataContracts
 
 module API =
 
@@ -101,6 +102,9 @@ module API =
                 return $"Could not deserialize JSON because '{err}'" |> InvalidOperationException |> raise
         }
 
+    [<FunctionName("GetSpeechToken")>]
+    let GetSpeechToken ([<HttpTrigger(AuthorizationLevel.Anonymous, "get")>] req: HttpRequest, log: ILogger) : SpeechToken =
+        { token = "bfd9229e785f43ef8134772285dec160" }
 
     // exists only for debugging purposes
     [<FunctionName("GetMessage")>]

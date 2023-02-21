@@ -11,6 +11,7 @@
     <None Include="Scripts\Scratch1.fsx" />
     <Compile Include="Common.fs" />
     <Compile Include="UICommon.fs" />
+    <Compile Include="DataContracts.fs" />
     <Compile Include="GameData.fs" />
     <Compile Include="GameLogic.fs" />
     <Compile Include="LocalStorage.fs" />
