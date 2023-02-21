@@ -63,9 +63,9 @@ module private Impl =
 
     let cheers =
         [for i in 1..5 do
-            $"cheer{i}"
+            $"Cheer{i}"
             ]
-    let bomb = "bomb"
+    let bomb = "Bomb"
 
     let update (sound: Sound IRefValue) msg model =
         match msg with

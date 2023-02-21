@@ -43,6 +43,6 @@ let createAudio id =
         Browser.Dom.document.head.appendChild(audio) |> ignore
         audio?load()
 
-for id in ["cheer1";"cheer2";"cheer3";"cheer4";"cheer5";"bomb"] do
+for id in ["Cheer1";"Cheer2";"Cheer3";"Cheer4";"Cheer5";"Bomb"] do
     createAudio id
 
