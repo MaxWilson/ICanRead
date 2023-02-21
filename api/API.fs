@@ -17,6 +17,7 @@ open Microsoft.AspNetCore.Routing
 open System.Threading.Tasks
 open Azure.Messaging.WebPubSub
 open DataContracts
+open Microsoft.Extensions.Configuration
 
 module API =
 
@@ -102,9 +103,16 @@ module API =
                 return $"Could not deserialize JSON because '{err}'" |> InvalidOperationException |> raise
         }
 
+    let cred = new DefaultAzureCredential()
+
     [<FunctionName("GetSpeechToken")>]
     let GetSpeechToken ([<HttpTrigger(AuthorizationLevel.Anonymous, "get")>] req: HttpRequest, log: ILogger) : SpeechToken =
-        { token = "bfd9229e785f43ef8134772285dec160" }
+        match System.Environment.GetEnvironmentVariable("AzureSpeechSDKKey") with
+        | v when System.String.IsNullOrWhiteSpace v -> failwith "You must add AzureSpeechSDKKey to your local.settings.json file"
+        | key ->
+            let context = new Azure.Core.TokenRequestContext([| "https://cognitiveservices.azure.com/.default" |])
+            let tokenResponse = cred.GetToken(context, System.Threading.CancellationToken.None);
+            { token = tokenResponse.Token }
 
     // exists only for debugging purposes
     [<FunctionName("GetMessage")>]

@@ -38,7 +38,8 @@ module private Impl =
     let makeSpeechSynthesizer(sdk, speechConfig, audioConfig) = jsNative
 
     let synthesizer(token) : obj =
-        let speechConfig = speech?SpeechConfig?fromSubscription(token, "westus2")
+        let resourceId = "/subscriptions/2f4e9444-9448-4618-b9e4-4d41ce647375/resourceGroups/ShiningSword/providers/Microsoft.CognitiveServices/accounts/shiningswordspeech"
+        let speechConfig = speech?SpeechConfig?fromAuthorizationToken($"aad#{resourceId}#{token}", "westus2")
         speechConfig?speechSynthesisVoiceName <- "en-US-MichelleNeural";
         let audioConfig = speech?AudioConfig?fromDefaultSpeakerOutput()
         makeSpeechSynthesizer(speech, speechConfig, audioConfig)
