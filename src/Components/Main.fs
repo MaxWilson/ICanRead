@@ -53,6 +53,7 @@ module private Impl =
     let makeSound(url) =
         Promise.create(fun resolve reject ->
             let audio = Browser.Dom.document.createElement("audio")
+            audio?volume <- 0.4
             audio?src <- url
             audio?autoplay <- true
             audio?controls <- false
@@ -65,7 +66,6 @@ module private Impl =
         [
             "Cheer1.m4a"
             "Cheer2.m4a"
-            "Cheer3.m4a"
             "Cheer4.m4a"
             "Cheer5.m4a"
             "1_person_cheering-Jett_Rifkin-1851518140.mp3"
@@ -84,13 +84,8 @@ module private Impl =
                 speak game.problem.answer
             | Effects ->
                 promise {
-                    try
-                        do! makeSound (if game.feedback |> fst = Correct then List.chooseRandom cheers else bomb)
-                        printfn "Made a sound"
-                    with err ->
-                        printfn $"error: {err}"
-                    printfn $"Speaking {game.problem.answer}"
                     speak game.problem.answer
+                    do! makeSound (if game.feedback |> fst = Correct then List.chooseRandom cheers else bomb)
                     } |> Promise.start
             { model with game = game }, []
         | HelpLetter letter ->
