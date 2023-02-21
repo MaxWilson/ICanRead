@@ -32,3 +32,17 @@ let root = Feliz.ReactDOM.createRoot(Browser.Dom.document.getElementById "root")
 
 root.render(Root())
 
+let createAudio id =
+    if Browser.Dom.document.getElementById id |> isNull then
+        let audio = Browser.Dom.document.createElement("audio")
+        audio?hidden <- true
+        audio?volume <- 0.4
+        audio?src <- $"assets/{id}.m4a"
+        audio?id <- id
+        audio?controls <- false
+        Browser.Dom.document.head.appendChild(audio) |> ignore
+        audio?load()
+
+for id in ["cheer1";"cheer2";"cheer3";"cheer4";"cheer5";"bomb"] do
+    createAudio id
+

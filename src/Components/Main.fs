@@ -49,28 +49,23 @@ module private Impl =
                 txt, ignore, fun (x:obj) -> System.Console.WriteLine("error", x))
         } |> Promise.start
 
-    let makeSound(url) =
+    let makeSound(id) =
         Promise.create(fun resolve reject ->
-            let audio = Browser.Dom.document.createElement("audio")
+            let audio = Browser.Dom.document.getElementById(id)
+            audio?currentTime <- 0
+            audio?onended <- fun _ -> resolve()
+            audio?onerror <- fun e -> reject e
             audio?volume <- 0.4
-            audio?src <- url
-            audio?autoplay <- true
             audio?controls <- false
             audio?loop <- false
-            audio?onended <- fun _ -> resolve(); audio?remove()
-            audio?onerror <- fun e -> reject e
+            audio?play()
             )
 
     let cheers =
-        [
-            "Cheer1.m4a"
-            "Cheer2.m4a"
-            "Cheer4.m4a"
-            "Cheer5.m4a"
-            "1_person_cheering-Jett_Rifkin-1851518140.mp3"
-            ] |> List.map (sprintf "../assets/%s")
-
-    let bomb = "../assets/Grenade Explosion-SoundBible.com-2100581469.mp3"
+        [for i in 1..5 do
+            $"cheer{i}"
+            ]
+    let bomb = "bomb"
 
     let update (sound: Sound IRefValue) msg model =
         match msg with
@@ -79,13 +74,8 @@ module private Impl =
             match sound.current with
             | Verbose ->
                 speak $"{snd game.feedback} Now, which button says '{game.problem.answer}'?"
-            | Terse ->
+            | Terse | Effects ->
                 speak game.problem.answer
-            | Effects ->
-                promise {
-                    speak game.problem.answer
-                    do! makeSound (if game.feedback |> fst = Correct then List.chooseRandom cheers else bomb)
-                    } |> Promise.start
             { model with game = game }, []
         | HelpLetter letter ->
             speak letter
@@ -143,7 +133,9 @@ module private Impl =
                             ]
                         classP' "guessButton" Html.button [
                             prop.text word
-                            prop.onClick (fun _ -> dispatch (Pick word))
+                            prop.onClick (fun _ ->
+                                makeSound (if word = model.game.problem.answer then List.chooseRandom cheers else bomb) |> ignore
+                                dispatch (Pick word))
                             ]
                     ]
 
