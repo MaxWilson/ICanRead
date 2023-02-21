@@ -115,6 +115,7 @@ img, picture, svg, video
     grid-area: footer
 
 .highScores
+  animation: slideIn 1s
   display: grid
   grid-template-columns: repeat(auto, 1fr)
   grid-template-areas: ". hd hd ." "sd sd main main"
@@ -139,3 +140,12 @@ img, picture, svg, video
       grid-column: 1/-1
     grid-template-columns: auto 1fr 1fr 1fr
     column-gap: 10px
+  .quit
+    grid-row: -1
+    grid-column: 1/-1
+    justify-self: center
+    button
+      padding: 1rem
+
+.settings
+  animation: slideIn 1s

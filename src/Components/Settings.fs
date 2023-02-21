@@ -2,6 +2,7 @@
 open Feliz
 open Feliz.UseElmish
 open Elmish
+open Types
 open Types.Settings
 
 [<AutoOpen>]
@@ -16,8 +17,16 @@ module private Impl =
 
 [<ReactComponent>]
 let Component (props: Props) =
-    let model, dispatch = React.useElmish(thunk3 Program.mkSimple init update ignore2)
+    let sound = props.settings.currentSound
+    let setSound = props.settings.setSound
     class' "settings" Html.div [
-        Html.div "Placeholder"
+        Html.div [
+            Html.div "Sound:"
+            for option in [Verbose; Effects; Terse] do
+                let chkId = "chk" + option.ToString()
+                Html.input [prop.type'.checkbox; prop.id chkId; prop.readOnly true; prop.isChecked ((option = sound)); prop.onClick(thunk1 setSound option)]
+                Html.label [prop.htmlFor chkId; prop.text $"{option}"]
+            ]
+
         Html.button [prop.onClick (thunk1 props.onQuit ()); prop.text "Done"]
         ]

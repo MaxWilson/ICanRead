@@ -14,7 +14,7 @@ open Types
 let HelloPage (props: HelloPage.Props) =
     let name, setName = React.useState ""
     let page, setPage = React.useState Hello
-
+    let backToHello = (thunk1 setPage Hello)
     match page with
     | Hello ->
         class' "helloPage" Html.div [
@@ -33,11 +33,11 @@ let HelloPage (props: HelloPage.Props) =
                     setPage Main
                     )
                 ]
-            HighScore.Component (props.scores, None) ignore
+            HighScore.Component { scores = props.scores; onQuit = None }
             ]
     | Main ->
-        Main.Export.Component name (thunk1 setPage Hello)
+        Main.Export.Component { userName = name; scores = props.scores; settings = props.settings } backToHello
     | Settings ->
-        Settings.Component { onQuit = thunk1 setPage Hello }
+        Settings.Component { onQuit = thunk1 setPage Hello; settings = props.settings }
     | HighScore ->
-        HighScore.Component (props.scores, thunk1 setPage Hello |> Some) ignore
+        HighScore.Component { scores = props.scores; onQuit = Some backToHello }

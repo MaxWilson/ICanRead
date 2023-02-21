@@ -1,11 +1,10 @@
 module App
 
 open Elmish
-open Elmish.Navigation
-open Elmish.React
-open Fable.Core
 open Fable.Core.JsInterop
 open Types.HighScore
+open Types
+open Feliz
 
 importSideEffects "./styles.sass"
 let highScores =
@@ -15,7 +14,12 @@ let highScores =
     [|
         { name = "Therion"; score = 1000; date = System.DateTimeOffset.Now }
         |]
-let x() = HelloPage.HelloPage { scores = highScores }
 let root = Feliz.ReactDOM.createRoot(Browser.Dom.document.getElementById "root")
-root.render(HelloPage.HelloPage { scores = highScores })
+
+[<Feliz.ReactComponent>]
+let Root() =
+    let sound, setSound = React.useState Verbose
+    HelloPage.HelloPage { scores = highScores; settings = { currentSound = sound; setSound = setSound } }
+
+root.render(Root())
 

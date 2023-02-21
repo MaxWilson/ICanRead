@@ -27,9 +27,9 @@ module private Impl =
         | Msg -> model
 
 [<ReactComponent>]
-let Component (args, (onQuit: (unit -> unit) option)) dispatch =
+let Component (props: Props) =
     let showRecent, setRecent = React.useState false
-    let model, dispatch = React.useElmish(thunk3 Program.mkSimple init update ignore2, args)
+    let model, dispatch = React.useElmish(thunk3 Program.mkSimple init update ignore2, props.scores)
     class' "highScores" Html.div [
         classTxt' "title" Html.div "High Scores"
         let scoresOf className title (rows: Row array) =
@@ -47,4 +47,10 @@ let Component (args, (onQuit: (unit -> unit) option)) dispatch =
                 ]
         scoresOf "allTime" "All time" model.allTime
         scoresOf "recent" "This week" model.recent
+        match props.onQuit with
+        | None -> ()
+        | Some quit ->
+            class' "quit" Html.div [
+                Html.button [prop.text "Quit"; prop.onClick (thunk1 quit ())]
+                ]
         ]

@@ -13,12 +13,15 @@ open GameLogic
 open Fable.Core
 
 module private Impl =
+    open Types
 
     type 't Deferred = NotStarted | InProgress | Ready of 't
-
+    type Modal = Settings | HighScore
     type Model = {
         userName: string
         game: Game
+        openDialog: Modal option
+        sound: Sound IRefValue
         }
 
     type Msg =
@@ -27,6 +30,7 @@ module private Impl =
         | VerbalizeProblem
         | Pick of word: string
         | HelpLetter of letter: string
+        | SetDialog of Modal option
 
     [<ImportAll("microsoft-cognitiveservices-speech-sdk")>]
     let speech: obj = jsNative
@@ -50,25 +54,44 @@ module private Impl =
         match msg with
         | Pick word ->
             let game = GameLogic.update model.game word
-            speak $"{game.feedback} Now, which button says '{game.problem.answer}'?"
+            match model.sound.current with
+            | Verbose ->
+                speak $"{game.feedback} Now, which button says '{game.problem.answer}'?"
+            | Terse ->
+                speak game.problem.answer
+            | Effects ->
+                speak game.problem.answer
             { model with game = game }, []
         | HelpLetter letter ->
             speak letter
             model, Cmd.Empty
         | VerbalizeProblem ->
-            speak $" Which button says '{model.game.problem.answer}'?"
+            match model.sound.current with
+            | Verbose ->
+                speak $" Which button says '{model.game.problem.answer}'?"
+            | Terse | Effects ->
+                speak model.game.problem.answer
             model, Cmd.Empty
         | SayHello ->
-            speak $"Hello {model.userName}!"
+            if model.sound.current = Verbose then
+                speak $"Hello {model.userName}!"
             model, Cmd.Empty
         | SayHelloAndVerbalizeProblem ->
-            speak $"Hello {model.userName}! Can you show me which button says '{model.game.problem.answer}'?"
+            match model.sound.current with
+            | Verbose ->
+                speak $"Hello {model.userName}! Can you show me which button says '{model.game.problem.answer}'?"
+            | Terse | Effects ->
+                speak model.game.problem.answer
             model, Cmd.Empty
+        | SetDialog v ->
+            { model with openDialog = v }, Cmd.Empty
 
-    let init (userName: string) =
+    let init (userName: string, sound) =
         {
             userName = if userName.Trim() = "" then "stranger" else userName
             game = GameLogic.init()
+            openDialog = None
+            sound = sound
             }, Cmd.ofMsg SayHelloAndVerbalizeProblem
 
     let navigateTo (url: string) =
@@ -76,9 +99,13 @@ module private Impl =
 
     let view model onQuit dispatch =
         class' "main" Html.div [
-            Header.header ([
+            class' "header" Html.span [
                 classP' "userName" Html.div [prop.text $"Hello, {model.userName}!"; prop.onClick (thunk1 dispatch SayHello)]
-                ], model.game.score, (thunk1 onQuit ()))
+                classP' "settings" Html.button [prop.onClick (thunk1 dispatch (SetDialog (Some Settings))); prop.text $"Settings"]
+                classP' "highscores" Html.button [prop.onClick (thunk1 dispatch (SetDialog (Some HighScore))); prop.text $"High scores"]
+                classP' "score" Html.span [prop.onClick (thunk1 dispatch (SetDialog (Some HighScore))); prop.text $"Score: {model.game.score}"]
+                classP' "quit" Html.button [prop.text $"Quit"; prop.onClick (thunk1 onQuit ())]
+                ]
 
             class' "guessing" Html.div [
                 class' "choices" Html.section [
@@ -97,7 +124,6 @@ module private Impl =
                             ]
                     ]
 
-
                 classP' "againButton" Html.button [prop.text "Say it again"; prop.onClick (thunk1 dispatch VerbalizeProblem)]
                 if model.game.feedback <> "" then
                     Html.div model.game.feedback
@@ -112,6 +138,15 @@ module public Export =
     open Feliz.UseElmish
 
     [<ReactComponent>]
-    let Component (name: string) onQuit =
-        let model, dispatch = React.useElmish((fun _ -> Program.mkProgram init update (fun _ _ -> ())), arg=name)
-        view model onQuit dispatch
+    let Component (props: Types.Main.Props) onQuit =
+        let name = props.userName
+        let speaker = React.useRef props.settings.currentSound
+        React.useEffect(fun () -> speaker.current <- props.settings.currentSound)
+        let model, dispatch = React.useElmish((fun _ -> Program.mkProgram init update (fun _ _ -> ())), arg=(name,speaker))
+        match model.openDialog with
+        | None ->
+            view model onQuit dispatch
+        | Some Settings ->
+            Settings.Component { onQuit = (thunk1 dispatch (SetDialog None)); settings = props.settings }
+        | Some HighScore ->
+            HighScore.Component { scores = props.scores; onQuit = Some (thunk1 dispatch (SetDialog None)) }
