@@ -23,6 +23,8 @@ See https://github.com/aaronpowell/swa-feliz-template for more build and deploym
 ##Attributions
 Sound effects courtesy of Jeff Rifkin and Mike Koenig under Creative Commons/Attribution 3.0 (via soundbible.com).
 
+Icon courtesy of Adobe stock art.
+
 # Whitespace errors
 
 If you see superfluous ^Ms in git diff, do git config core.whitespace cr-at-eol
