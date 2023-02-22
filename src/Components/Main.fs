@@ -110,7 +110,7 @@ module private Impl =
     let navigateTo (url: string) =
         Browser.Dom.window.location.assign url
 
-    let view model onQuit dispatch =
+    let view model (sound, onQuit) dispatch =
         class' "main" Html.div [
             class' "header" Html.span [
                 classP' "userName" Html.div [prop.text $"Hello, {model.userName}!"; prop.onClick (thunk1 dispatch SayHello)]
@@ -134,7 +134,8 @@ module private Impl =
                         classP' "guessButton" Html.button [
                             prop.text word
                             prop.onClick (fun _ ->
-                                makeSound (if word = model.game.problem.answer then List.chooseRandom cheers else bomb) |> ignore
+                                if sound = Effects then
+                                    makeSound (if word = model.game.problem.answer then List.chooseRandom cheers else bomb) |> ignore
                                 dispatch (Pick word))
                             ]
                     ]
@@ -160,7 +161,7 @@ let Component (props: Types.Main.Props) onQuit =
     let model, dispatch = React.useElmish((fun _ -> Program.mkProgram init (update sound) (fun _ _ -> ())), arg=name)
     match model.openDialog with
     | None ->
-        view model onQuit dispatch
+        view model (sound.current, onQuit) dispatch
     | Some Settings ->
         Settings.Component { onQuit = Some (thunk1 dispatch (SetDialog None)); settings = props.settings }
     | Some HighScore ->
