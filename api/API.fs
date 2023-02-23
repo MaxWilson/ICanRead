@@ -18,6 +18,7 @@ open System.Threading.Tasks
 open Azure.Messaging.WebPubSub
 open DataContracts
 open Microsoft.Extensions.Configuration
+open Microsoft.Azure.Cosmos
 
 module API =
 
@@ -41,6 +42,13 @@ module API =
             HttpStatusCode.OK,
             Content = new StringContent(Encode.Auto.toString data))
 
+    let fromJsonRequest<'t> (req: HttpRequest) = task {
+        let! requestBody = ((new StreamReader(req.Body)).ReadToEndAsync())
+        match Decode.Auto.fromString<'t>(requestBody) with
+        | Ok data -> return data
+        | Error err ->
+            return $"Could not deserialize JSON because '{err}'" |> InvalidOperationException |> raise
+        }
 
     [<FunctionName("ReadData")>]
     let ReadData ([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ReadData/{id}")>] req: HttpRequest) (log: ILogger)
@@ -172,3 +180,14 @@ module API =
                 Content = new StringContent(clientUri.ToString())
                 )
             }
+
+type HighScores(cosmos: CosmosClient) =
+    [<FunctionName("ReadHighScores")>]
+    member this.ReadHighScores([<HttpTrigger(AuthorizationLevel.Anonymous, "get")>] req: HttpRequest) =
+        Scoreboard.ReadScores(cosmos)
+
+    [<FunctionName("WriteScore")>]
+    member this.WriteScore(log:ILogger, [<HttpTrigger(AuthorizationLevel.Anonymous, "post")>] req: HttpRequest) = task {
+        let! (row: Row) = API.fromJsonRequest req
+        do! Scoreboard.WriteScore(log, row, cosmos)
+        }

@@ -1,5 +1,6 @@
 ﻿[<AutoOpen>]
 module Common
+open System.Threading.Tasks
 
 let thunk v _ = v
 let thunk1 f x _ = f x
@@ -35,6 +36,10 @@ module List =
     let create v = [v]
     let chooseRandom (lst: _ list) =
         lst[rand.Next lst.Length]
+
+module Task =
+    let map (f: 't -> 'r) (t: 't Task) = task { let! result = t in return f result }
+    let ignore (t: Task<'a>) = t :> Task
 
 let inline trace label x =
 #if DEBUG

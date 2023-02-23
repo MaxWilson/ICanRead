@@ -6,6 +6,7 @@ open Browser.Types
 open System
 open Fable.DateFunctions
 open Types.HighScore
+open DataContracts
 
 [<AutoOpen>]
 module private Impl =

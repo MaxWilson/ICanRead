@@ -117,7 +117,7 @@ module private Impl =
                 classP' "settings" Html.button [prop.onClick (thunk1 dispatch (SetDialog (Some Settings))); prop.text $"Settings"]
                 classP' "highscores" Html.button [prop.onClick (thunk1 dispatch (SetDialog (Some HighScore))); prop.text $"High scores"]
                 classP' "score" Html.span [prop.onClick (thunk1 dispatch (SetDialog (Some HighScore))); prop.text $"Score: {model.game.score}"]
-                classP' "quit" Html.button [prop.text $"Quit"; prop.onClick (thunk1 onQuit ())]
+                classP' "quit" Html.button [prop.text $"Quit"; prop.onClick (thunk1 onQuit model)]
                 ]
 
             class' "guessing" Html.div [
@@ -158,10 +158,14 @@ let Component (props: Types.Main.Props) onQuit =
     let name = props.userName
     let sound = React.useRef props.settings.currentSound
     sound.current <- props.settings.currentSound
+    let writeToDbAndQuit (model: Model) =
+        let row : DataContracts.HighScore.Row = { name = name; score = model.game.score; date = System.DateTimeOffset.Now }
+        Thoth.Fetch.Fetch.post("api/WriteScore", row) |> ignore // attempt to write but don't wait to see results
+        onQuit()
     let model, dispatch = React.useElmish((fun _ -> Program.mkProgram init (update sound) (fun _ _ -> ())), arg=name)
     match model.openDialog with
     | None ->
-        view model (sound.current, onQuit) dispatch
+        view model (sound.current, writeToDbAndQuit) dispatch
     | Some Settings ->
         Settings.Component { onQuit = Some (thunk1 dispatch (SetDialog None)); settings = props.settings }
     | Some HighScore ->
