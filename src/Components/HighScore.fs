@@ -8,50 +8,44 @@ open Fable.DateFunctions
 open Types.HighScore
 open DataContracts
 
-[<AutoOpen>]
-module private Impl =
-    open Types.HighScore
-
-    type Model = {
-        allTime: Row array
-        recent: Row array
-        }
-
-    let init (allTime, recent) =
-        {   allTime = allTime
-            recent = recent }
-
-    type Msg = Msg
-
-    let update msg model =
-        match msg with
-        | Msg -> model
-
 [<ReactComponent>]
 let Component (props: Props) =
-    let showRecent, setRecent = React.useState false
-    let model, dispatch = React.useElmish(thunk3 Program.mkSimple init update ignore2, props.scores)
-    class' "highScores" Html.div [
-        classTxt' "title" Html.div "High Scores"
-        let scoresOf className title (rows: Row array) =
-            class' className Html.div [
-                classTxt' "header" Html.div title
-                classTxt' "bolded" Html.div "Place"
-                classTxt' "bolded" Html.div "Name"
-                classTxt' "bolded" Html.div "Score"
-                classTxt' "bolded" Html.div "Date"
-                for ix, row in rows |> Array.mapi (fun i row -> i+1, row) do
-                    Html.div (match ix with 1 -> "1st" | 2 -> "2nd" | 3 -> "3rd" | n -> $"{n}th")
-                    Html.div row.name
-                    Html.div row.score
-                    Html.div (row.date.Format "MM/dd/yyyy")
-                ]
-        scoresOf "allTime" "All time" model.allTime
-        scoresOf "recent" "This week" model.recent
-        match props.onQuit with
-        | None -> ()
-        | Some quit ->
-            class' "quit" Html.div [
-                Html.button [prop.text "OK"; prop.onClick (thunk1 quit ())]
-                ]
-        ]
+    let scores, setScores = React.useState None
+    React.useEffectOnce(fun _ ->
+        match HighScores.readScores() with
+        | Ok scores -> setScores (Some scores)
+        | Error err ->
+            promise {
+                let! highScores = err.awaiting
+                setScores (Some highScores)
+                } |> ignore
+        if props.registerForUpdates then
+            HighScores.registerForUpdates (Some >> setScores)
+        )
+    match scores with
+    | None ->
+        classTxt' "highScores" Html.div "Loading high scores..."
+    | Some scores ->
+        class' "highScores" Html.div [
+            classTxt' "title" Html.div "High Scores"
+            let scoresOf className title (rows: Row array) =
+                class' className Html.div [
+                    classTxt' "header" Html.div title
+                    classTxt' "bolded" Html.div "Place"
+                    classTxt' "bolded" Html.div "Name"
+                    classTxt' "bolded" Html.div "Score"
+                    for ix, row in rows |> Array.sortByDescending (fun r -> r.score) |> Array.mapi (fun i row -> i+1, row) do
+                        if ix <= 5 then
+                            Html.div (match ix with 1 -> "1st" | 2 -> "2nd" | 3 -> "3rd" | n -> $"{n}th")
+                            Html.div row.name
+                            Html.div row.score
+                    ]
+            scoresOf "allTime" "All time" scores.allTime
+            scoresOf "recent" "This week" scores.recent
+            match props.onQuit with
+            | None -> ()
+            | Some quit ->
+                class' "quit" Html.div [
+                    Html.button [prop.text "OK"; prop.onClick (thunk1 quit ())]
+                    ]
+            ]

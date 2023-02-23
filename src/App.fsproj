@@ -15,6 +15,7 @@
     <Compile Include="GameData.fs" />
     <Compile Include="GameLogic.fs" />
     <Compile Include="LocalStorage.fs" />
+    <Compile Include="HighScores.fs" />
     <Compile Include="Components\Types.fs" />
     <Compile Include="Components\Header.fs" />
     <Compile Include="Components\Settings.fs" />
