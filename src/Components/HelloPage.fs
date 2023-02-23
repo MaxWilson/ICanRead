@@ -32,7 +32,7 @@ let HelloPage (props: HelloPage.Props) =
                     )
                 ]
             Settings.Component { settings = props.settings; onQuit = None }
-            HighScore.Component { scores = props.scores; onQuit = None }
+            HighScore.Component { registerForUpdates = true; onQuit = None }
             ]
     else
-        Main.Component { userName = name; scores = props.scores; settings = props.settings } backToHello
+        Main.Component { userName = name; settings = props.settings } backToHello

@@ -8,8 +8,8 @@ type PageSelector = Hello | Main | Settings | HighScore
 
 module HighScore =
     type Props = {
-        scores: Row array * Row array
         onQuit: (unit -> unit) option
+        registerForUpdates: bool
         }
 
 module Settings =
@@ -25,13 +25,11 @@ module Settings =
 module Main =
     type Props = {
         userName: string
-        scores: HighScore.Row array * HighScore.Row array
         settings: Settings.Settings
         }
 
 module HelloPage =
     type Props = {
-        scores: HighScore.Row array * HighScore.Row array
         settings: Settings.Settings
         }
 

@@ -65,9 +65,9 @@ module Caching =
                 |> queryAsyncN<{| name: string |}> 5 $"select distinct s.name from s where s.normalizedDate >= '{dt}' order by s.score desc "
                 |> Task.map (Array.map (fun r -> r.name))
 
-            let! bestEver = scores |> queryAsyncN<DatelessRow> 5 $"select s.name, max(s.score) as score from s where s.name in ({nameList bestEverPlayers}) group by s.name"
-            let! bestRecent = scores |> queryAsyncN<DatelessRow> 5 $"select s.name, max(s.score) as score from s where s.normalizedDate >= '{System.DateTimeOffset.UtcNow.AddDays(-8) |> normalize}' and s.name in ({nameList bestEverPlayers}) group by s.name"
-            let best = { bestEver = bestEver; bestRecent = bestRecent }
+            let! bestEver = scores |> queryAsyncN<Row> 5 $"select s.name, max(s.score) as score from s where s.name in ({nameList bestEverPlayers}) group by s.name"
+            let! bestRecent = scores |> queryAsyncN<Row> 5 $"select s.name, max(s.score) as score from s where s.normalizedDate >= '{System.DateTimeOffset.UtcNow.AddDays(-8) |> normalize}' and s.name in ({nameList bestEverPlayers}) group by s.name"
+            let best = { allTime = bestEver; recent = bestRecent }
 
             // make sure to update cache
             MemoryCache.Default.Add("topPlayers", best, DateTimeOffset.Now.AddMinutes(60.)) |> ignore
@@ -112,17 +112,17 @@ let WriteScore(log:ILogger, row' :Row, cosmos: CosmosClient) = task {
     let score = row'.score
     let! db = cosmos.CreateDatabaseIfNotExistsAsync "ICanRead"
     let! scores = db.Database.CreateContainerIfNotExistsAsync("ScoresByDay", "/name")
-
-    let key = $"""{normalize row'.date}-{match row'.name with s when String.IsNullOrWhiteSpace s -> "Anonymous" | name -> name}"""
-    let! bestToday = Caching.bestToday key (fun _ -> scores.Container.ReadItemAsync<DatelessRow>(key, new PartitionKey(userName)) |> tryGet)
+    let date = DateTimeOffset.UtcNow
+    let key = $"""{normalize date}-{match row'.name with s when String.IsNullOrWhiteSpace s -> "Anonymous" | name -> name}"""
+    let! bestToday = Caching.bestToday key (fun _ -> scores.Container.ReadItemAsync<Row>(key, new PartitionKey(userName)) |> tryGet)
 
     if score > bestToday then
-        do! scores.Container.UpsertItemAsync<_>({| id = key; name = row'.name; score = row'.score; normalizedDate = row'.date |> normalize; date = row'.date |}, new PartitionKey(userName)) |> Task.ignore
+        do! scores.Container.UpsertItemAsync<_>({| id = key; name = row'.name; score = row'.score; normalizedDate = date |> normalize |}, new PartitionKey(userName)) |> Task.ignore
         Caching.update key row'
     }
 
-let ReadScores(cosmos: CosmosClient) = task {
+let ReadScores(cosmos: CosmosClient, forceRefresh: bool) = task {
     let! db = cosmos.CreateDatabaseIfNotExistsAsync "ICanRead"
     let! scores = db.Database.CreateContainerIfNotExistsAsync("ScoresByDay", "/name")
-    return! Caching.topPlayers(scores.Container, false)
+    return! Caching.topPlayers(scores.Container, forceRefresh)
     }

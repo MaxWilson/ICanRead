@@ -184,7 +184,14 @@ module API =
 type HighScores(cosmos: CosmosClient) =
     [<FunctionName("ReadHighScores")>]
     member this.ReadHighScores([<HttpTrigger(AuthorizationLevel.Anonymous, "get")>] req: HttpRequest) =
-        Scoreboard.ReadScores(cosmos)
+        // forceRefresh is optional, defaults to true
+        let forceRefresh =
+            req.GetQueryParameterDictionary().TryGetValue "forceRefresh"
+            |> function
+            | (true, v) ->
+                (bool.TryParse(v) |> function (true, v) -> v | _ -> false)
+            | _ -> true
+        Scoreboard.ReadScores(cosmos, forceRefresh)
 
     [<FunctionName("WriteScore")>]
     member this.WriteScore(log:ILogger, [<HttpTrigger(AuthorizationLevel.Anonymous, "post")>] req: HttpRequest) = task {

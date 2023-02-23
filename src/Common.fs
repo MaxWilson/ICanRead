@@ -29,20 +29,30 @@ module Array =
             lst.[i] <- lst.[j]
             lst.[j] <- tmp
         lst
+    let every pred arr =
+        arr |> Array.exists (not << pred) |> not
 module String =
     let join (sep:string) (input: string seq) = System.String.Join(sep, input)
+    let isNullOrWhitespace (s: string) = System.String.IsNullOrWhiteSpace s
 module List =
     let mapiOneBased f lst = lst |> List.mapi (fun ix -> f (ix + 1))
     let create v = [v]
     let chooseRandom (lst: _ list) =
         lst[rand.Next lst.Length]
+    let every pred arr =
+        arr |> List.exists (not << pred) |> not
 
+#if FABLE_COMPILER
+#else
 module Task =
     let map (f: 't -> 'r) (t: 't Task) = task { let! result = t in return f result }
     let ignore (t: Task<'a>) = t :> Task
+#endif
 
 let inline trace label x =
 #if DEBUG
     printfn $"Trace/{label}: {x}"
 #endif
     x
+
+let inline log element = System.Console.WriteLine(element |> box)

@@ -47,18 +47,19 @@ module private Impl =
         promise {
             synthesizer()?speakTextAsync(
                 txt, ignore, fun (x:obj) -> System.Console.WriteLine("error", x))
-        } |> Promise.start
+        } |> ignore
 
     let makeSound(id) =
         Promise.create(fun resolve reject ->
             let audio = Browser.Dom.document.getElementById(id)
-            audio?currentTime <- 0
-            audio?onended <- fun _ -> resolve()
-            audio?onerror <- fun e -> reject e
-            audio?volume <- 0.4
-            audio?controls <- false
-            audio?loop <- false
-            audio?play()
+            if audio?paused then
+                audio?currentTime <- 0
+                audio?onended <- fun _ -> resolve()
+                audio?onerror <- fun e -> reject e
+                audio?volume <- 0.4
+                audio?controls <- false
+                audio?loop <- false
+                audio?play()
             )
 
     let cheers =
@@ -76,6 +77,8 @@ module private Impl =
                 speak $"{snd game.feedback} Now, which button says '{game.problem.answer}'?"
             | Terse | Effects ->
                 speak game.problem.answer
+            if game.feedback |> fst = Correct then
+                HighScores.writeScore (model.userName, game.score)
             { model with game = game }, []
         | HelpLetter letter ->
             speak letter
@@ -159,7 +162,7 @@ let Component (props: Types.Main.Props) onQuit =
     let sound = React.useRef props.settings.currentSound
     sound.current <- props.settings.currentSound
     let writeToDbAndQuit (model: Model) =
-        let row : DataContracts.HighScore.Row = { name = name; score = model.game.score; date = System.DateTimeOffset.Now }
+        let row : DataContracts.HighScore.Row = { name = name; score = model.game.score }
         Thoth.Fetch.Fetch.post("api/WriteScore", row) |> ignore // attempt to write but don't wait to see results
         onQuit()
     let model, dispatch = React.useElmish((fun _ -> Program.mkProgram init (update sound) (fun _ _ -> ())), arg=name)
@@ -169,4 +172,4 @@ let Component (props: Types.Main.Props) onQuit =
     | Some Settings ->
         Settings.Component { onQuit = Some (thunk1 dispatch (SetDialog None)); settings = props.settings }
     | Some HighScore ->
-        HighScore.Component { scores = props.scores; onQuit = Some (thunk1 dispatch (SetDialog None)) }
+        HighScore.Component { registerForUpdates = false; onQuit = Some (thunk1 dispatch (SetDialog None)) }
