@@ -51,6 +51,6 @@ let Component (props: Props) =
         | None -> ()
         | Some quit ->
             class' "quit" Html.div [
-                Html.button [prop.text "Quit"; prop.onClick (thunk1 quit ())]
+                Html.button [prop.text "OK"; prop.onClick (thunk1 quit ())]
                 ]
         ]
