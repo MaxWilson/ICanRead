@@ -37,7 +37,7 @@ let Component (props: Props) =
                     for ix, row in rows |> Array.sortByDescending (fun r -> r.score) |> Array.mapi (fun i row -> i+1, row) do
                         if ix <= 5 then
                             Html.div (match ix with 1 -> "1st" | 2 -> "2nd" | 3 -> "3rd" | n -> $"{n}th")
-                            Html.div row.name
+                            Html.div (if String.isNullOrWhitespace row.name then "Anonymous" else row.name)
                             Html.div row.score
                     ]
             scoresOf "allTime" "All time" scores.allTime

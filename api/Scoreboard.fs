@@ -65,8 +65,8 @@ module Caching =
                 |> queryAsyncN<{| name: string |}> 5 $"select distinct s.name from s where s.normalizedDate >= '{dt}' order by s.score desc "
                 |> Task.map (Array.map (fun r -> r.name))
 
-            let! bestEver = scores |> queryAsyncN<Row> 5 $"select s.name, max(s.score) as score from s where s.name in ({nameList bestEverPlayers}) group by s.name"
-            let! bestRecent = scores |> queryAsyncN<Row> 5 $"select s.name, max(s.score) as score from s where s.normalizedDate >= '{System.DateTimeOffset.UtcNow.AddDays(-8) |> normalize}' and s.name in ({nameList bestEverPlayers}) group by s.name"
+            let! bestEver = if bestEverPlayers.Length = 0 then Task.FromResult [||] else scores |> queryAsyncN<Row> 5 $"select s.name, max(s.score) as score from s where s.name in ({nameList bestEverPlayers}) group by s.name"
+            let! bestRecent = if bestRecentPlayers.Length = 0 then Task.FromResult [||] else scores |> queryAsyncN<Row> 5 $"select s.name, max(s.score) as score from s where s.normalizedDate >= '{System.DateTimeOffset.UtcNow.AddDays(-8) |> normalize}' and s.name in ({nameList bestEverPlayers}) group by s.name"
             let best = { allTime = bestEver; recent = bestRecent }
 
             // make sure to update cache

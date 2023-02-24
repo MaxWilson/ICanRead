@@ -68,6 +68,9 @@ module private Impl =
             ]
     let bomb = "Bomb"
 
+    let defaultName name =
+        if String.isNullOrWhitespace name then "stranger" else name
+
     let update (sound: Sound IRefValue) msg model =
         match msg with
         | Pick word ->
@@ -91,12 +94,12 @@ module private Impl =
                 speak model.game.problem.answer
             model, Cmd.Empty
         | SayHello ->
-            speak $"Hello {model.userName}!"
+            speak $"Hello {model.userName |> defaultName}!"
             model, Cmd.Empty
         | SayHelloAndVerbalizeProblem ->
             match sound.current with
             | Verbose ->
-                speak $"Hello {model.userName}! Can you show me which button says '{model.game.problem.answer}'?"
+                speak $"Hello {model.userName |> defaultName}! Can you show me which button says '{model.game.problem.answer}'?"
             | Terse | Effects ->
                 speak model.game.problem.answer
             model, Cmd.Empty
@@ -105,7 +108,7 @@ module private Impl =
 
     let init (userName: string) =
         {
-            userName = if userName.Trim() = "" then "stranger" else userName
+            userName = userName
             game = GameLogic.init()
             openDialog = None
             }, Cmd.ofMsg SayHelloAndVerbalizeProblem
@@ -116,7 +119,7 @@ module private Impl =
     let view model (sound, onQuit) dispatch =
         class' "main" Html.div [
             class' "header" Html.span [
-                classP' "userName" Html.div [prop.text $"Hello, {model.userName}!"; prop.onClick (thunk1 dispatch SayHello)]
+                classP' "userName" Html.div [prop.text $"Hello, {model.userName |> defaultName}!"; prop.onClick (thunk1 dispatch SayHello)]
                 classP' "settings" Html.button [prop.onClick (thunk1 dispatch (SetDialog (Some Settings))); prop.text $"Settings"]
                 classP' "highscores" Html.button [prop.onClick (thunk1 dispatch (SetDialog (Some HighScore))); prop.text $"High scores"]
                 classP' "score" Html.span [prop.onClick (thunk1 dispatch (SetDialog (Some HighScore))); prop.text $"Score: {model.game.score}"]
