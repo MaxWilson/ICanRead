@@ -63,11 +63,11 @@ let writeScore (userName: string, score: int) =
         // attempt to write but don't wait to see results
 
     let updateTables(highScores': HighScores) =
-        let userName = if System.String.IsNullOrWhiteSpace userName then "Anonymous" else userName
         if highScores'.recent.Length < 5 || highScores'.recent |> Array.exists (fun r -> score >= r.score) then
             let update (rows: Row array) =
+                breakHere()
                 if rows |> Array.exists (fun r -> r.name = userName) then
-                    rows |> Array.map (fun r -> if r.name = userName then { r with score = score } else r)
+                    rows |> Array.map (fun r -> if r.name = userName && score > r.score then { r with score = score } else r)
                 else
                     rows |> Array.append [| { name = userName; score = score } |] |> Array.take (min 5 (rows.Length + 1))
             let highScores' = { highScores' with recent = highScores'.recent |> update; allTime = highScores'.allTime |> update }
