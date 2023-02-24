@@ -29,10 +29,10 @@ let updateLocalStorageCache() =
     let p = promise {
                 try
                     let! (v: HighScores) = Thoth.Fetch.Fetch.get "/api/ReadHighScores"
-
                     highScores <- Some (updateLocalCacheAndNotify v)
                     return v
                 with err ->
+                    Browser.Dom.window.alert(err)
                     log err
                     return errorFallback()
             }

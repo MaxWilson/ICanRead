@@ -19,6 +19,7 @@ type Startup() =
     override this.ConfigureAppConfiguration(builder: IFunctionsConfigurationBuilder) =
         ()
     override this.Configure(builder: IFunctionsHostBuilder) =
+        builder.Services.AddLogging() |> ignore
         builder.Services.AddSingleton<IConfiguration, IConfiguration>(fun _ -> config) |> ignore
         builder.Services.AddSingleton<ICosmosDBSerializerFactory, ThothCosmosDbSerializerFactory>()
             |> ignore

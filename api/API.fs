@@ -183,18 +183,26 @@ module API =
 
 type HighScores(cosmos: CosmosClient) =
     [<FunctionName("ReadHighScores")>]
-    member this.ReadHighScores([<HttpTrigger(AuthorizationLevel.Anonymous, "get")>] req: HttpRequest) =
-        // forceRefresh is optional, defaults to true
-        let forceRefresh =
-            req.GetQueryParameterDictionary().TryGetValue "forceRefresh"
-            |> function
-            | (true, v) ->
-                (bool.TryParse(v) |> function (true, v) -> v | _ -> false)
-            | _ -> true
-        Scoreboard.ReadScores(cosmos, forceRefresh)
-
+    member this.ReadHighScores(log: ILogger, [<HttpTrigger(AuthorizationLevel.Anonymous, "get")>] req: HttpRequest) = task {
+        try
+            // forceRefresh is optional, defaults to true
+            let forceRefresh =
+                req.GetQueryParameterDictionary().TryGetValue "forceRefresh"
+                |> function
+                | (true, v) ->
+                    (bool.TryParse(v) |> function (true, v) -> v | _ -> false)
+                | _ -> true
+            return! Scoreboard.ReadScores(cosmos, forceRefresh)
+        with err ->
+            log.LogError(err.ToString());
+            return raise err
+        }
     [<FunctionName("WriteScore")>]
     member this.WriteScore(log:ILogger, [<HttpTrigger(AuthorizationLevel.Anonymous, "post")>] req: HttpRequest) = task {
-        let! (row: Row) = API.fromJsonRequest req
-        do! Scoreboard.WriteScore(log, row, cosmos)
+        try
+            let! (row: Row) = API.fromJsonRequest req
+            do! Scoreboard.WriteScore(log, row, cosmos)
+        with err ->
+            log.LogError(err.ToString());
+            return raise err
         }
