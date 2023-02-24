@@ -22,6 +22,8 @@ img, picture, svg, video
 
 // ICanRead-specific logic here
 
+$small: 400px
+
 @keyframes slideIn
    0%
       transform: translateY(-100vh)
@@ -41,7 +43,7 @@ img, picture, svg, video
   display: grid
   grid-template-areas: "header" "input" "footer"
   *
-    font-size: 1.3rem
+    font-size: 1.2rem
   > *
     margin-bottom: 1rem
   .header
@@ -63,19 +65,24 @@ img, picture, svg, video
     grid-area: footer
 
 .main > *
-  font-size: 1.3rem
+  font-size: 1.2rem
 
 .main
   margin: 10px
   animation: slideIn 1s
   display: grid
   grid-template-areas: "header" "main" "footer"
+
   row-gap: 10px
   .header
     display: flex
     gap: 15px
     grid-area: header
     font-size: 1.8rem
+    @media (max-width: $small)
+      gap: 5px
+      font-size: 1.2rem
+
     .score
       font-style: italic
     > *
@@ -90,7 +97,7 @@ img, picture, svg, video
   .guessing
     grid-area: main
     button
-      font-size: 1.3rem
+      font-size: 1.2rem
       padding: 1rem
     .speakingVoice
       font-size: 1.8rem
@@ -104,6 +111,9 @@ img, picture, svg, video
         font-size: 1.2rem
         margin-bottom: 10px
       .guessLetter
+        @media (max-width: $small)
+          padding: 6px
+
         padding: 10px
         position: relative
         top: calc(50% - 1.2rem)
@@ -123,10 +133,13 @@ img, picture, svg, video
 .highScores
   display: grid
   grid-template-areas: ". hd hd ." "sd sd main main"
+  @media (max-width: $small)
+    grid-template-areas: "hd hd" "sd sd" "main main"
+
   gap: 10px
   .title
     grid-area: hd
-    justify-self: center
+    text-align: center
     font-weight: bolder
     font-size: 1.6rem
   .recent
@@ -138,7 +151,7 @@ img, picture, svg, video
     border: medium solid black
     padding: 10px
     .header
-      justify-self: center
+      text-align: center
       font-weight: bold
       grid-row: 1
       grid-column: 1/-1
@@ -148,13 +161,13 @@ img, picture, svg, video
   .quit
     grid-row: -1
     grid-column: 1/-1
-    justify-self: center
+    text-align: center
     button
       padding: 1rem
 
 .settings
   *
-    font-size: 1.3rem
+    font-size: 1.2rem
   label
     margin-left: 5px
     margin-right: 10px
