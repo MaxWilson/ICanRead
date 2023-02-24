@@ -56,13 +56,13 @@ module Caching =
                 scores
                 |> queryAsyncN<{| name: string |}> 5 "select distinct s.name from s order by s.score desc"
                 |> Task.map (Array.map (fun r -> r.name))
-            let dt = System.DateTimeOffset.UtcNow |> normalize
+            let lastWeek = System.DateTimeOffset.UtcNow.AddDays -8 |> normalize
             let nameList names =
                 let escape (s:string) = s.Replace("'", "\'")
                 String.join "," (names |> Seq.map (fun n -> $"'{escape n}'"))
             let! bestRecentPlayers =
                 scores
-                |> queryAsyncN<{| name: string |}> 5 $"select distinct s.name from s where s.normalizedDate >= '{dt}' order by s.score desc "
+                |> queryAsyncN<{| name: string |}> 5 $"select distinct s.name from s where s.normalizedDate >= '{lastWeek}' order by s.score desc "
                 |> Task.map (Array.map (fun r -> r.name))
 
             let! bestEver = if bestEverPlayers.Length = 0 then Task.FromResult [||] else scores |> queryAsyncN<Row> 5 $"select s.name, max(s.score) as score from s where s.name in ({nameList bestEverPlayers}) group by s.name"
