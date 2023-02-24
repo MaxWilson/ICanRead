@@ -65,7 +65,6 @@ let writeScore (userName: string, score: int) =
     let updateTables(highScores': HighScores) =
         if highScores'.recent.Length < 5 || highScores'.recent |> Array.exists (fun r -> score >= r.score) then
             let update (rows: Row array) =
-                breakHere()
                 if rows |> Array.exists (fun r -> r.name = userName) then
                     rows |> Array.map (fun r -> if r.name = userName && score > r.score then { r with score = score } else r)
                 else
