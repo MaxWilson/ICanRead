@@ -33,7 +33,7 @@ let queryAsyncBase<'t> (top: int option) (sqlTxt: string) (container: Container)
 let queryAsync<'t> sqlTxt container = queryAsyncBase<'t> None sqlTxt container
 let queryAsyncN<'t> top sqlTxt container = queryAsyncBase<'t> (Some top) sqlTxt container
 
-let normalize (dt: DateTimeOffset) = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(dt, "PST").ToString("yyyy-MM-dd")
+let normalize (dt: DateTimeOffset) = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(dt, "Pacific Standard Time").ToString("yyyy-MM-dd")
 
 module Caching =
     // We embrace eventual consistency for score lists in the name of decent perf:
