@@ -166,7 +166,7 @@ let Component (props: Types.Main.Props) onQuit =
     sound.current <- props.settings.currentSound
     let writeToDbAndQuit (model: Model) =
         let row : DataContracts.HighScore.Row = { name = name; score = model.game.score }
-        Thoth.Fetch.Fetch.post("api/WriteScore", row) |> ignore // attempt to write but don't wait to see results
+        Thoth.Fetch.Fetch.post<_, unit>("api/WriteScore", row) |> ignore // attempt to write but don't wait to see results
         onQuit()
     let model, dispatch = React.useElmish((fun _ -> Program.mkProgram init (update sound) (fun _ _ -> ())), arg=name)
     match model.openDialog with

@@ -59,7 +59,7 @@ let writeScore (userName: string, score: int) =
     // seconds, just guaranteed not to save more than once every ten seconds.
     if (DateTimeOffset.Now - lastWrite).TotalSeconds >= 10 then
         lastWrite <- DateTimeOffset.Now
-        Thoth.Fetch.Fetch.post("api/WriteScore", { name = userName; score = score }) |> ignore
+        Thoth.Fetch.Fetch.post<_, unit>("api/WriteScore", { name = userName; score = score }) |> ignore
         // attempt to write but don't wait to see results
 
     let updateTables(highScores': HighScores) =
