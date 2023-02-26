@@ -1,0 +1,2 @@
+REM first, dotnet tool install -g sqlpackage && msbuild
+msbuild && sqlpackage /action:publish /sourceFile:bin/debug/SQLDB.dacpac /tcs:"data source=Localhost;Initial Catalog=SQLDB; Integrated Security=SSPI; encrypt=false"
