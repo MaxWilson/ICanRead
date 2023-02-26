@@ -15,3 +15,5 @@ publish
 !.gitignore
 *.jsx
 *.jsx.map
+*.dbmdl
+*.jfm

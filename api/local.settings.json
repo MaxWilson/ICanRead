@@ -1,0 +1,6 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "SQLConnectionString": "Server=.;Database=SQLDB;Trusted_Connection=True;"
+  }
+}
