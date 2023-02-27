@@ -14,6 +14,7 @@ open Fable.Core
 
 module private Impl =
     open Types
+    open Sound
 
     type 't Deferred = NotStarted | InProgress | Ready of 't
     type Modal = Settings | HighScore
@@ -24,94 +25,38 @@ module private Impl =
         }
 
     type Msg =
-        | SayHello
-        | SayHelloAndVerbalizeProblem
-        | VerbalizeProblem
-        | Pick of word: string
-        | HelpLetter of letter: string
+        | Picked of Game
         | SetDialog of Modal option
 
-    [<ImportAll("microsoft-cognitiveservices-speech-sdk")>]
-    let speech: obj = jsNative
-
-    [<Emit("new $0.SpeechSynthesizer($1, $2)")>]
-    let makeSpeechSynthesizer(sdk, speechConfig, audioConfig) = jsNative
-
-    let synthesizer(token) : obj =
-        let speechConfig = speech?SpeechConfig?fromSubscription("526292c93472431687fbbd3bd8432fdd", "westus2")
-        speechConfig?speechSynthesisVoiceName <- "en-US-MichelleNeural";
-        let audioConfig = speech?AudioConfig?fromDefaultSpeakerOutput()
-        makeSpeechSynthesizer(speech, speechConfig, audioConfig)
-
-    let speak (txt: string) =
-        promise {
-            synthesizer()?speakTextAsync(
-                txt, ignore, fun (x:obj) -> System.Console.WriteLine("error", x))
-        } |> ignore
-
-    let makeSound(id) =
-        Promise.create(fun resolve reject ->
-            let audio = Browser.Dom.document.getElementById(id)
-            if audio?paused then
-                audio?currentTime <- 0
-                audio?onended <- fun _ -> resolve()
-                audio?onerror <- fun e -> reject e
-                audio?volume <- 0.4
-                audio?controls <- false
-                audio?loop <- false
-                audio?play()
-            )
-
-    let cheers =
-        [for i in 1..5 do
-            $"Cheer{i}"
-            ]
-    let bomb = "Bomb"
-
-    let defaultName name =
-        if String.isNullOrWhitespace name then "stranger" else name
+    let pick (sound: Sound) word (model: Model) dispatch =
+        let game = GameLogic.update model.game word
+        match sound, fst game.feedback with
+        | Verbose, _ ->
+            speak $"{snd game.feedback} Now, which button says '{game.problem.answer}'?"
+        | Terse, _ ->
+            speak game.problem.answer
+        | Effects, Incorrect ->
+            makeSound bomb |> ignore
+            speak game.problem.answer
+        | Effects, Correct ->
+            makeSound (List.chooseRandom cheers) |> ignore
+            speak game.problem.answer
+            HighScores.writeScore (model.userName, game.score)
+        dispatch (Picked game)
 
     let update (sound: Sound IRefValue) msg model =
         match msg with
-        | Pick word ->
-            let game = GameLogic.update model.game word
-            match sound.current with
-            | Verbose ->
-                speak $"{snd game.feedback} Now, which button says '{game.problem.answer}'?"
-            | Terse | Effects ->
-                speak game.problem.answer
-            if game.feedback |> fst = Correct then
-                HighScores.writeScore (model.userName, game.score)
-            { model with game = game }, []
-        | HelpLetter letter ->
-            speak letter
-            model, Cmd.Empty
-        | VerbalizeProblem ->
-            match sound.current with
-            | Verbose ->
-                speak $" Which button says '{model.game.problem.answer}'?"
-            | Terse | Effects ->
-                speak model.game.problem.answer
-            model, Cmd.Empty
-        | SayHello ->
-            speak $"Hello {model.userName |> defaultName}!"
-            model, Cmd.Empty
-        | SayHelloAndVerbalizeProblem ->
-            match sound.current with
-            | Verbose ->
-                speak $"Hello {model.userName |> defaultName}! Can you show me which button says '{model.game.problem.answer}'?"
-            | Terse | Effects ->
-                speak model.game.problem.answer
-            model, Cmd.Empty
+        | Picked game ->
+            { model with game = game }
         | SetDialog v ->
-            { model with openDialog = v }, Cmd.Empty
+            { model with openDialog = v }
 
-    let init (userName: string) =
+    let init (userName: string, game: Game) =
         {
             userName = userName
-            game = GameLogic.init()
+            game = game
             openDialog = None
-            }, Cmd.ofMsg SayHelloAndVerbalizeProblem
+            }
 
     let navigateTo (url: string) =
         Browser.Dom.window.location.assign url
@@ -119,7 +64,7 @@ module private Impl =
     let view model (sound, onQuit) dispatch =
         class' "main" Html.div [
             class' "header" Html.span [
-                classP' "userName" Html.div [prop.text $"Hello, {model.userName |> defaultName}!"; prop.onClick (thunk1 dispatch SayHello)]
+                classP' "userName" Html.div [prop.text $"Hello, {model.userName |> defaultName}!"; prop.onClick (thunk1 sayHello model.userName)]
                 classP' "settings" Html.button [prop.onClick (thunk1 dispatch (SetDialog (Some Settings))); prop.text $"Settings"]
                 classP' "highscores" Html.button [prop.onClick (thunk1 dispatch (SetDialog (Some HighScore))); prop.text $"High scores"]
                 classP' "score" Html.span [prop.onClick (thunk1 dispatch (SetDialog (Some HighScore))); prop.text $"Score: {model.game.score}"]
@@ -134,19 +79,16 @@ module private Impl =
                                 Html.span [
                                     prop.className "guessLetter"
                                     prop.text (letter.ToString())
-                                    prop.onClick (fun _ -> dispatch (HelpLetter (letter.ToString())))
+                                    prop.onClick (fun _ -> speak (letter.ToString()))
                                     ]
                             ]
                         classP' "guessButton" Html.button [
                             prop.text word
-                            prop.onClick (fun _ ->
-                                if sound = Effects then
-                                    makeSound (if word = model.game.problem.answer then List.chooseRandom cheers else bomb) |> ignore
-                                dispatch (Pick word))
+                            prop.onClick (fun _ -> pick sound word model dispatch)
                             ]
                     ]
 
-                classP' "againButton" Html.button [prop.text "Say it again"; prop.onClick (thunk1 dispatch VerbalizeProblem)]
+                classP' "againButton" Html.button [prop.text "Say it again"; prop.onClick (thunk2 verbalizeProblem sound model.game)]
                 let feedback = model.game.feedback |> snd
                 if feedback <> "" then
                     Html.div feedback
@@ -161,14 +103,13 @@ open Feliz.UseElmish
 
 [<ReactComponent>]
 let Component (props: Types.Main.Props) onQuit =
-    let name = props.userName
     let sound = React.useRef props.settings.currentSound
     sound.current <- props.settings.currentSound
     let writeToDbAndQuit (model: Model) =
-        let row : DataContracts.HighScore.Row = { name = name; score = model.game.score }
+        let row : DataContracts.HighScore.Row = { name = props.userName; score = model.game.score }
         Thoth.Fetch.Fetch.post<_, unit>("api/WriteScore", row) |> ignore // attempt to write but don't wait to see results
         onQuit()
-    let model, dispatch = React.useElmish((fun _ -> Program.mkProgram init (update sound) (fun _ _ -> ())), arg=name)
+    let model, dispatch = React.useElmish((fun _ -> Program.mkSimple init (update sound) (fun _ _ -> ())), arg=(props.userName,props.initialGame))
     match model.openDialog with
     | None ->
         view model (sound.current, writeToDbAndQuit) dispatch

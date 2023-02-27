@@ -1,6 +1,7 @@
 ﻿module Types
 open System
 open DataContracts
+open GameLogic
 
 // we put certain types in here so we can export only ReactComponents from the associated pages,
 // and therefore not mess up hot-loading during development. (It's a limitation of React Fast-refresh.)
@@ -26,6 +27,7 @@ module Main =
     type Props = {
         userName: string
         settings: Settings.Settings
+        initialGame: Game
         }
 
 module HelloPage =

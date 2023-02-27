@@ -20,6 +20,7 @@
     <Compile Include="Components\Header.fs" />
     <Compile Include="Components\Settings.fs" />
     <Compile Include="Components\HighScore.fs" />
+    <Compile Include="Components\Sound.fs" />
     <Compile Include="Components\Main.fs" />
     <Compile Include="Components\HelloPage.fs" />
     <Compile Include="App.fs" />
