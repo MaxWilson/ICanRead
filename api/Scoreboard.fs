@@ -21,7 +21,7 @@ let read(conn: SqlConnection) =
                 """
                 select top 5 name, max(score) as score from ICanRead.HighScore h
                 group by name
-                order by max(score)
+                order by max(score) desc
                 """
                 )
         let! bestRecent =
@@ -30,7 +30,7 @@ let read(conn: SqlConnection) =
                 select top 5 name, max(score) as score from ICanRead.HighScore h
                 where date >= dateadd(wk, -1, SYSDATETIMEOFFSET())
                 group by name
-                order by max(score)
+                order by max(score) desc
                 """
                 )
         return { allTime = bestEver |> Array.ofSeq; recent = bestRecent |> Array.ofSeq }
